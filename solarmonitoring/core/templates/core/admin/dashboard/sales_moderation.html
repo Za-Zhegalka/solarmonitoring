@@ -1,0 +1,34 @@
+{% extends "core/base.html" %}
+
+{% block title %}Модерация объявлений{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Объявления на проверке</h1>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Товар</th>
+                        <th>Цена</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Солнечная панель SunPower 400W</td>
+                        <td>25 000 ₽</td>
+                        <td>
+                            <button class="btn btn-sm btn-success">Одобрить</button>
+                            <button class="btn btn-sm btn-danger">Отклонить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

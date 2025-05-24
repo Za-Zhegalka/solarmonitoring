@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+
+{% block title %}Профиль администратора{% endblock %}
+
+{% block content %}
+<h1>Профиль администратора</h1>
+<div class="card">
+    <div class="card-body">
+        <p>Логин: {{ user.username }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Телефон: {{ user.phone }}</p>
+    </div>
+</div>
+{% endblock %}

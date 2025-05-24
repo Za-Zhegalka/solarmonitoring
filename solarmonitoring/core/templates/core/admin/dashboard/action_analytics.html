@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block title %}Аналитика действий{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h2>Аналитика системы</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Активность пользователей</h4>
+                <div class="fake-chart" style="height: 300px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    [График активности]
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4>Последние события</h4>
+                <ul class="list-group">
+                    <li class="list-group-item">Пользователь user1 добавил станцию (12.05.2023)</li>
+                    <li class="list-group-item">Пользователь user2 отправил запрос в поддержку (11.05.2023)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
