@@ -1,0 +1,21 @@
+{% extends "core/base.html" %}
+
+{% block title %}Доска объявлений{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Все объявления</h1>
+<div class="row">
+    {% for item in "12345"|make_list %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Инвертор SMA Sunny Boy {{ forloop.counter }}.0</h5>
+                <p class="card-text">Мощность: {{ forloop.counter }}500 Вт</p>
+                <p class="text-success">Цена: {{ forloop.counter }}8 000 ₽</p>
+                <button class="btn btn-warning btn-sm">Редактировать</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
