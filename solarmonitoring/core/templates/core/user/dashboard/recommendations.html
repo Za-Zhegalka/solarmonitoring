@@ -1,0 +1,75 @@
+{% extends "core/user/dashboard/base.html" %}
+
+{% block content %}
+<h2 class="mb-4">Персонализированные рекомендации</h2>
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Оптимизация эффективности</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-success">
+            <h5><i class="bi bi-lightbulb"></i> Основная рекомендация</h5>
+            <p>Увеличьте угол наклона панелей до 35° для повышения эффективности на 15%</p>
+            <button class="btn btn-sm btn-success">Подробнее</button>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>Очистка панелей</h5>
+                        <p>Рекомендуется очистить панели от пыли в ближайшие 3 дня</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-warning" style="width: 65%">65% эффективности</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">Запланировать очистку</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5>Замена оборудования</h5>
+                        <p>Инвертор требует профилактического обслуживания</p>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-info" style="width: 42%">42% износа</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">Контакты сервиса</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">История рекомендаций</h5>
+    </div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Рекомендация</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>15.05.2023</td>
+                    <td>Проверить соединения</td>
+                    <td><span class="badge bg-success">Выполнено</span></td>
+                </tr>
+                <tr>
+                    <td>10.05.2023</td>
+                    <td>Обновить прошивку</td>
+                    <td><span class="badge bg-warning text-dark">В процессе</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

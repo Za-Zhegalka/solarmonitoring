@@ -1,24 +1,118 @@
 {% extends "core/base.html" %}
 
-{% block title %}Сообщество{% endblock %}
+{% block sidebar %}
+<!-- Пользовательское меню -->
+{% endblock %}
 
 {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Сообщество владельцев</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTopicModal">
+        Новая тема
+    </button>
+</div>
+
 <div class="row">
     <div class="col-md-8">
-        <h2>Форум администраторов</h2>
-        <div class="card mb-3">
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Популярные</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Новые</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Мои обсуждения</a>
+                    </li>
+                </ul>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Как улучшить модерацию объявлений?</h5>
-                <p class="card-text">Обсуждение новых правил проверки...</p>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Как увеличить эффективность зимой?</h5>
+                            <small>3 дня назад</small>
+                        </div>
+                        <p class="mb-1">Обсуждаем методы борьбы со снегом на панелях</p>
+                        <small><span class="badge bg-primary">23 ответа</span></small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Лучшие инверторы 2023</h5>
+                            <small>1 неделю назад</small>
+                        </div>
+                        <p class="mb-1">Сравниваем модели по надежности и цене</p>
+                        <small><span class="badge bg-primary">42 ответа</span></small>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">Статистика</div>
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Топ-эксперты</h5>
+            </div>
             <div class="card-body">
-                <p>Пользователей: 125</p>
-                <p>Активных обсуждений: 12</p>
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="rounded-circle bg-light text-center" style="width: 40px; height: 40px; line-height: 40px;">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">Иван Петров</h6>
+                                <small class="text-muted">12 рекомендаций</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Полезные ресурсы</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-earmark-text"></i> Гайд по обслуживанию
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <i class="bi bi-calendar-event"></i> График вебинаров
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно новой темы -->
+<div class="modal fade" id="newTopicModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Новая тема</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Заголовок</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Текст сообщения</label>
+                        <textarea class="form-control" rows="5"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Опубликовать</button>
+                </form>
             </div>
         </div>
     </div>

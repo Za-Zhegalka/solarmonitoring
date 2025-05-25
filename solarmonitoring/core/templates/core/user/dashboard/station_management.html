@@ -1,0 +1,28 @@
+{% extends "core/user/dashboard/base.html" %}
+
+{% block content %}
+<h2>Мои солнечные станции</h2>
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <span>Список станций</span>
+            <button class="btn btn-sm btn-success">+ Добавить станцию</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>Станция #1</h5>
+                        <small>Мощность: 5 кВт</small>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary">Управлять</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager, Group, Permission
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
 
@@ -40,6 +40,7 @@ class User(AbstractUser):
 
 
 class SolarStation(models.Model):
+    objects = None
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stations')
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)

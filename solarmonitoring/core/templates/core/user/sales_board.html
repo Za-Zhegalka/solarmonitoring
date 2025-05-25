@@ -1,21 +1,128 @@
 {% extends "core/base.html" %}
 
-{% block title %}Доска объявлений{% endblock %}
+{% block sidebar %}
+<!-- Пользовательское меню -->
+{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Все объявления</h1>
-<div class="row">
-    {% for item in "12345"|make_list %}
-    <div class="col-md-4 mb-4">
-        <div class="card">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Доска объявлений</h2>
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#newAdModal">
+        <i class="bi bi-plus-lg"></i> Добавить объявление
+    </button>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Поиск...">
+            <button class="btn btn-outline-secondary" type="button">
+                <i class="bi bi-search"></i>
+            </button>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <select class="form-select">
+            <option>Все категории</option>
+            <option>Солнечные панели</option>
+            <option>Инверторы</option>
+            <option>Монтажные системы</option>
+        </select>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 g-4">
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-img-top bg-light" style="height: 150px;"></div>
             <div class="card-body">
-                <h5 class="card-title">Инвертор SMA Sunny Boy {{ forloop.counter }}.0</h5>
-                <p class="card-text">Мощность: {{ forloop.counter }}500 Вт</p>
-                <p class="text-success">Цена: {{ forloop.counter }}8 000 ₽</p>
-                <button class="btn btn-warning btn-sm">Редактировать</button>
+                <h5 class="card-title">Солнечные панели 300Вт</h5>
+                <p class="card-text">Новые, в упаковке. 10 штук в наличии.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 text-success">25 000 ₽/шт</h6>
+                    <small class="text-muted">Москва</small>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <button class="btn btn-sm btn-outline-primary">Подробнее</button>
             </div>
         </div>
     </div>
-    {% endfor %}
+
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-img-top bg-light" style="height: 150px;"></div>
+            <div class="card-body">
+                <h5 class="card-title">Инвертор SMA 5000TL</h5>
+                <p class="card-text">Б/у, в отличном состоянии. Гарантия 3 мес.</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 text-success">45 000 ₽</h6>
+                    <small class="text-muted">Санкт-Петербург</small>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <button class="btn btn-sm btn-outline-primary">Подробнее</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item disabled">
+            <a class="page-link" href="#">Назад</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+        <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item">
+            <a class="page-link" href="#">Вперед</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Модальное окно нового объявления -->
+<div class="modal fade" id="newAdModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Новое объявление</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Категория</label>
+                            <select class="form-select">
+                                <option>Солнечные панели</option>
+                                <option>Инверторы</option>
+                                <option>Комплектующие</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Цена</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control">
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Заголовок</label>
+                        <input type="text" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Фотографии</label>
+                        <input type="file" class="form-control" multiple>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Опубликовать</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
