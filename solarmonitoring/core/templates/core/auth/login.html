@@ -1,36 +1,113 @@
 {% extends "core/base.html" %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-6">
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-            {% for error in form.non_field_errors %}
-                {{ error }}
-            {% endfor %}
-        </div>
-        {% endif %}
+<div class="login-container" style="min-height: 100vh; background: linear-gradient(135deg, #F8F9FA 0%, #E9ECEF 100%);">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <!-- Логотип системы -->
+                <div class="text-center mb-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#FF9500" viewBox="0 0 24 24" class="mb-3">
+                        <path d="M12 2L4 12l8 10 8-10-8-10zm0 4.5l5.5 6.5h-11l5.5-6.5z"/>
+                    </svg>
+                    <h2 class="fw-bold" style="color: #003366;">Solar Monitoring</h2>
+                </div>
 
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Вход в систему</h4>
-            </div>
-            <div class="card-body">
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Логин</label>
-                        {{ form.username }}
+                <!-- Карточка авторизации -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header py-3" style="background-color: #003366; border-radius: 0.375rem 0.375rem 0 0 !important;">
+                        <h4 class="mb-0 text-white text-center">Вход в систему</h4>
                     </div>
-                    <div class="mb-3">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">Пароль</label>
-                        {{ form.password }}
+                    <div class="card-body p-4">
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger rounded-3">
+                            {% for error in form.non_field_errors %}
+                                <div class="d-flex align-items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                    </svg>
+                                    {{ error }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <form method="post" action="{% url 'login' %}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="{{ form.username.id_for_label }}" class="form-label fw-medium" style="color: #003366;">Логин или Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: #E9ECEF;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6C757D" viewBox="0 0 16 16">
+                                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                                        </svg>
+                                    </span>
+                                    {{ form.username }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="{{ form.password.id_for_label }}" class="form-label fw-medium" style="color: #003366;">Пароль</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" style="background-color: #E9ECEF;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#6C757D" viewBox="0 0 16 16">
+                                            <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                                        </svg>
+                                    </span>
+                                    {{ form.password }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                                    <label class="form-check-label small" for="rememberMe" style="color: #6C757D;">Запомнить меня</label>
+                                </div>
+                                <a href="#" class="small text-decoration-none" style="color: #FF9500;">Забыли пароль?</a>
+                            </div>
+
+                            <button type="submit" class="btn w-100 py-2 mb-3" style="background-color: #FF9500; color: white; border: none; font-weight: 500;">
+                                Войти
+                            </button>
+
+                            <div class="text-center pt-3 border-top">
+                                <p class="small mb-0" style="color: #6C757D;">Ещё нет аккаунта?</p>
+                                <a href="#" class="btn btn-outline-secondary w-100 py-2 mt-2" style="font-weight: 500;">
+                                    Создать пользователя
+                                </a>
+                            </div>
+                        </form>
                     </div>
-                    <input type="hidden" name="next" value="{{ next }}">
-                    <button type="submit" class="btn btn-primary w-100">Войти</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+    }
+    .form-control:focus {
+        border-color: #FF9500;
+        box-shadow: 0 0 0 0.25rem rgba(255, 149, 0, 0.25);
+    }
+    .btn-outline-secondary:hover {
+        background-color: #003366;
+        color: white;
+        border-color: #003366;
+    }
+    .card {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    .input-group-text {
+        transition: all 0.3s;
+    }
+    .form-control:focus + .input-group-text {
+        background-color: #FF9500 !important;
+        color: white;
+    }
+</style>
 {% endblock %}
