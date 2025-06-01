@@ -131,7 +131,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-AUTH_USER_MODEL = 'core.User'
+# Убедитесь, что есть эти настройки
+SESSION_COOKIE_AGE = 1209600  # 2 недели (в секундах)
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'user_dashboard'

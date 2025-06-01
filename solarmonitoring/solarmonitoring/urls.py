@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import LogoutView
 from django.views.generic import RedirectView
 from django.contrib.auth.views import LoginView
 
@@ -11,7 +11,7 @@ urlpatterns = [
         redirect_authenticated_user=True,
         extra_context={'next': '/user/dashboard/'}
     ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('', RedirectView.as_view(pattern_name='user_dashboard'), name='home'),
     path('control/', include('core.admin_urls')),  # Админские URL
     path('user/', include('core.user_urls')),  # Пользовательские URL

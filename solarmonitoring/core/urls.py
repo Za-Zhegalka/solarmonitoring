@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import custom_logout
 
 urlpatterns = [
     # Админские URLs
@@ -12,4 +13,5 @@ urlpatterns = [
     path('base/community/', views.admin_community, name='admin_community'),
     path('base/map/', views.admin_interactive_map, name='admin_map'),
     path('base/sales/', views.admin_sales_board, name='admin_sales'),
+    path('logout/', custom_logout, name='logout'),
 ]

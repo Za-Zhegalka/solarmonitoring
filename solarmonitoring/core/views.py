@@ -1,5 +1,8 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 
 # Проверка, что пользователь - администратор
 def check_admin(user):
@@ -51,3 +54,9 @@ def admin_sales_board(request):
 
 def base(request):
     return render(request, 'core/base.html')
+
+@csrf_exempt  # Временно отключаем CSRF для тестирования
+def custom_logout(request):
+    logout(request)
+    request.session.flush()  # Полная очистка сессии
+    return redirect('login')
