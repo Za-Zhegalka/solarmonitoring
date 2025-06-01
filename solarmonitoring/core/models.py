@@ -21,14 +21,14 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True)
     is_operator = models.BooleanField(default=False)
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['email']  # Обязательное поле при создании суперпользователя
 
-    objects = UserManager()
+    def __str__(self):
+        return self.username
 
     class Meta:
         verbose_name = _('user')
