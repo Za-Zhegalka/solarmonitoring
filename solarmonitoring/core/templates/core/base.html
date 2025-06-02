@@ -38,41 +38,6 @@
             transition: all 0.3s ease;
         }
 
-        .nav-link {
-            color: var(--text-light);
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background-color: #e08600;
-            border-color: #e08600;
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-        }
-
-        .brand-logo {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
         /* Стили для левого меню */
         .user-profile {
             background-color: rgba(0, 51, 102, 0.03);
@@ -90,15 +55,15 @@
             transition: transform 0.3s;
         }
 
-        .avatar-circle:hover {
-            transform: scale(1.05);
-        }
-
         .menu-item {
             padding: 0.5rem 1rem;
             border-radius: 5px;
             transition: all 0.2s;
             margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-dark);
+            text-decoration: none;
         }
 
         .menu-item:hover {
@@ -116,11 +81,39 @@
             margin-right: 10px;
         }
 
-        .badge-role {
-            font-size: 0.7em;
-            font-weight: 500;
-            padding: 0.25em 0.6em;
+        /* Стили для выпадающего меню */
+        .dropdown-menu-item {
+            position: relative;
         }
+
+        .submenu {
+            display: none;
+            padding-left: 1.5rem;
+            list-style: none;
+        }
+
+        .dropdown-menu-item:hover .submenu {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        .submenu-item {
+            padding: 0.4rem 1rem;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .submenu-item:hover {
+            background-color: rgba(0, 51, 102, 0.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Остальные стили остаются без изменений */
+        /* ... */
     </style>
 </head>
 <body class="{% if request.path == '/login/' or request.path == '/accounts/login/' %}login-page{% endif %}">
@@ -176,16 +169,6 @@
                     <!-- Навигационное меню -->
                     <div class="flex-grow-1 p-3">
                         <ul class="nav flex-column">
-                            <!-- Рабочий стол -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark menu-item {% if 'dashboard' in request.path %}active{% endif %}"
-                                   href="{% url 'user_dashboard' %}">
-                                    <span class="menu-icon" style="color: var(--secondary);">
-                                        <i class="bi bi-speedometer2"></i>
-                                    </span>
-                                    Рабочий стол
-                                </a>
-                            </li>
 
                             <!-- Профиль -->
                             <li class="nav-item">
@@ -196,6 +179,34 @@
                                     </span>
                                     Профиль
                                 </a>
+                            </li>
+
+                            <!-- Рабочий стол с подменю -->
+                            <li class="dropdown-menu-item">
+                                <a class="menu-item {% if 'dashboard' in request.path or 'stations' in request.path or 'monitoring' in request.path or 'recommendations' in request.path %}active{% endif %}">
+                                    <span class="menu-icon" style="color: var(--secondary);">
+                                        <i class="bi bi-speedometer2"></i>
+                                    </span>
+                                    Рабочий стол
+                                    <i class="bi bi-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                                </a>
+                                <ul class="submenu">
+                                    <li>
+                                        <a href="{% url 'user_stations' %}" class="submenu-item {% if 'stations' in request.path %}active{% endif %}">
+                                            Управление станциями
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'user_monitoring' %}" class="submenu-item {% if 'monitoring' in request.path %}active{% endif %}">
+                                            Мониторинг и аналитика
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'user_recommendations' %}" class="submenu-item {% if 'recommendations' in request.path %}active{% endif %}">
+                                            Рекомендации
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
 
                             <!-- Сообщество -->
