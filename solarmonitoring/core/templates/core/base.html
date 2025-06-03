@@ -144,7 +144,7 @@
     </nav>
     {% endif %}
 
-    <div class="container-fluid">
+<div class="container-fluid">
         <div class="row">
             {% if user.is_authenticated and not request.path == '/login/' and not request.path == '/accounts/login/' %}
             <div class="col-md-2 sidebar p-0">
@@ -169,8 +169,7 @@
                     <!-- Навигационное меню -->
                     <div class="flex-grow-1 p-3">
                         <ul class="nav flex-column">
-
-                            <!-- Профиль -->
+                            <!-- Профиль (общий для всех) -->
                             <li class="nav-item">
                                 <a class="nav-link text-dark menu-item {% if 'profile' in request.path %}active{% endif %}"
                                    href="{% url 'user_profile' %}">
@@ -181,66 +180,135 @@
                                 </a>
                             </li>
 
-                            <!-- Рабочий стол с подменю -->
-                            <li class="dropdown-menu-item">
-                                <a class="menu-item {% if 'dashboard' in request.path or 'stations' in request.path or 'monitoring' in request.path or 'recommendations' in request.path %}active{% endif %}">
-                                    <span class="menu-icon" style="color: var(--secondary);">
-                                        <i class="bi bi-speedometer2"></i>
-                                    </span>
-                                    Рабочий стол
-                                    <i class="bi bi-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
-                                </a>
-                                <ul class="submenu">
-                                    <li>
-                                        <a href="{% url 'user_stations' %}" class="submenu-item {% if 'stations' in request.path %}active{% endif %}">
-                                            Управление станциями
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'user_monitoring' %}" class="submenu-item {% if 'monitoring' in request.path %}active{% endif %}">
-                                            Мониторинг и аналитика
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="{% url 'user_recommendations' %}" class="submenu-item {% if 'recommendations' in request.path %}active{% endif %}">
-                                            Рекомендации
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
+                            <!-- Меню для обычного пользователя -->
+                            {% if not user.is_operator %}
+                                <!-- Рабочий стол с подменю -->
+                                <li class="dropdown-menu-item">
+                                    <a href="{% url 'user_dashboard' %}" class="menu-item {% if 'dashboard' in request.path or 'stations' in request.path or 'monitoring' in request.path or 'recommendations' in request.path %}active{% endif %}">
+                                        <span class="menu-icon" style="color: var(--secondary);">
+                                            <i class="bi bi-speedometer2"></i>
+                                        </span>
+                                        Рабочий стол
+                                        <i class="bi bi-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                    <ul class="submenu">
+                                        <li>
+                                            <a href="{% url 'user_stations' %}" class="submenu-item {% if 'stations' in request.path %}active{% endif %}">
+                                                Управление станциями
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'user_monitoring' %}" class="submenu-item {% if 'monitoring' in request.path %}active{% endif %}">
+                                                Мониторинг и аналитика
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'user_recommendations' %}" class="submenu-item {% if 'recommendations' in request.path %}active{% endif %}">
+                                                Рекомендации
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
 
-                            <!-- Сообщество -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark menu-item {% if 'community' in request.path %}active{% endif %}"
-                                   href="{% url 'user_community' %}">
-                                    <span class="menu-icon" style="color: var(--success);">
-                                        <i class="bi bi-people"></i>
-                                    </span>
-                                    Сообщество
-                                </a>
-                            </li>
+                                <!-- Сообщество -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'community' in request.path %}active{% endif %}"
+                                       href="{% url 'user_community' %}">
+                                        <span class="menu-icon" style="color: var(--success);">
+                                            <i class="bi bi-people"></i>
+                                        </span>
+                                        Сообщество
+                                    </a>
+                                </li>
 
-                            <!-- Интерактивная карта -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark menu-item {% if 'map' in request.path %}active{% endif %}"
-                                   href="{% url 'user_map' %}">
-                                    <span class="menu-icon" style="color: var(--danger);">
-                                        <i class="bi bi-map"></i>
-                                    </span>
-                                    Интерактивная карта
-                                </a>
-                            </li>
+                                <!-- Интерактивная карта -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'map' in request.path %}active{% endif %}"
+                                       href="{% url 'user_map' %}">
+                                        <span class="menu-icon" style="color: var(--danger);">
+                                            <i class="bi bi-map"></i>
+                                        </span>
+                                        Интерактивная карта
+                                    </a>
+                                </li>
 
-                            <!-- Доска продаж -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark menu-item {% if 'sales' in request.path %}active{% endif %}"
-                                   href="{% url 'user_sales' %}">
-                                    <span class="menu-icon" style="color: var(--purple);">
-                                        <i class="bi bi-shop"></i>
-                                    </span>
-                                    Доска продаж
-                                </a>
-                            </li>
+                                <!-- Доска продаж -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'sales' in request.path %}active{% endif %}"
+                                       href="{% url 'user_sales' %}">
+                                        <span class="menu-icon" style="color: var(--purple);">
+                                            <i class="bi bi-shop"></i>
+                                        </span>
+                                        Доска продаж
+                                    </a>
+                                </li>
+
+                            <!-- Меню для администратора -->
+                            {% else %}
+                                <!-- Админ-панель с подменю -->
+                                <li class="dropdown-menu-item">
+                                    <a href="{% url 'admin_dashboard' %}" class="menu-item {% if 'admin_dashboard' in request.path or 'users' in request.path or 'support' in request.path or 'analytics' in request.path or 'moderation' in request.path %}active{% endif %}">
+                                        <span class="menu-icon" style="color: var(--secondary);">
+                                            <i class="bi bi-speedometer2"></i>
+                                        </span>
+                                        Админ-панель
+                                        <i class="bi bi-chevron-down ms-auto" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                    <ul class="submenu">
+                                        <li>
+                                            <a href="{% url 'admin_user_list' %}" class="submenu-item {% if 'users' in request.path %}active{% endif %}">
+                                                Список пользователей
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'admin_support' %}" class="submenu-item {% if 'support' in request.path %}active{% endif %}">
+                                                Заявки в поддержку
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'admin_analytics' %}" class="submenu-item {% if 'analytics' in request.path %}active{% endif %}">
+                                                Аналитика действий
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'admin_moderation' %}" class="submenu-item {% if 'moderation' in request.path %}active{% endif %}">
+                                                Модерация объявлений
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- Общие разделы для админа -->
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'community' in request.path %}active{% endif %}"
+                                       href="{% url 'admin_community' %}">
+                                        <span class="menu-icon" style="color: var(--success);">
+                                            <i class="bi bi-people"></i>
+                                        </span>
+                                        Сообщество
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'map' in request.path %}active{% endif %}"
+                                       href="{% url 'admin_map' %}">
+                                        <span class="menu-icon" style="color: var(--danger);">
+                                            <i class="bi bi-map"></i>
+                                        </span>
+                                        Интерактивная карта
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark menu-item {% if 'sales' in request.path %}active{% endif %}"
+                                       href="{% url 'admin_sales' %}">
+                                        <span class="menu-icon" style="color: var(--purple);">
+                                            <i class="bi bi-shop"></i>
+                                        </span>
+                                        Доска продаж
+                                    </a>
+                                </li>
+                            {% endif %}
                         </ul>
                     </div>
 
