@@ -60,11 +60,6 @@ def sales_moderation(request):
                 {'ads': ads})
 
 @user_passes_test(check_admin)
-def community(request):
-    """Управление сообществом"""
-    return render(request, 'core/admin/community.html')
-
-@user_passes_test(check_admin)
 def interactive_map(request):
     """Интерактивная карта станций"""
     stations = SolarStation.objects.all()[:10]  # Ограничение для демонстрации

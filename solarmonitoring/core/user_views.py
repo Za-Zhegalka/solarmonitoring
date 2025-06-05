@@ -64,14 +64,6 @@ def recommendations(request):
 
 
 @login_required
-def community(request):
-    """Сообщество пользователей"""
-    if request.user.is_operator:
-        return redirect('admin_community')
-    return render(request, 'core/user/community.html')
-
-
-@login_required
 def interactive_map(request):
     """Интерактивная карта (пользовательская версия)"""
     if request.user.is_operator:

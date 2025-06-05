@@ -34,12 +34,6 @@ def admin_action_analytics(request):
 def admin_sales_moderation(request):
     return render(request, 'core/admin/dashboard/sales_moderation.html')
 
-# ----- Сообщество -----
-@login_required
-@user_passes_test(check_admin)
-def admin_community(request):
-    return render(request, 'core/admin/community.html')
-
 # ----- Интерактивная карта -----
 @login_required
 @user_passes_test(check_admin)
