@@ -9,7 +9,6 @@ urlpatterns = [
     path('dashboard/support/', login_required(admin_views.support_requests), name='admin_support'),
     path('dashboard/analytics/', login_required(admin_views.action_analytics), name='admin_analytics'),
     path('dashboard/moderation/', login_required(admin_views.sales_moderation), name='admin_moderation'),
-    path('community/', login_required(admin_views.community), name='admin_community'),
     path('map/', login_required(admin_views.interactive_map), name='admin_map'),
     path('sales/', login_required(admin_views.sales_board), name='admin_sales'),
 ]

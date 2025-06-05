@@ -8,7 +8,6 @@ urlpatterns = [
     path('dashboard/stations/', login_required(user_views.station_management), name='user_stations'),
     path('dashboard/monitoring/', login_required(user_views.monitoring), name='user_monitoring'),
     path('dashboard/recommendations/', login_required(user_views.recommendations), name='user_recommendations'),
-    path('community/', login_required(user_views.community), name='user_community'),
     path('map/', login_required(user_views.interactive_map), name='user_map'),
     path('sales/', login_required(user_views.sales_board), name='user_sales'),
 ]
