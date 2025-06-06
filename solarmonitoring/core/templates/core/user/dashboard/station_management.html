@@ -2,27 +2,714 @@
 
 {% block content %}
 <h2>Мои солнечные станции</h2>
+
 <div class="card mb-4">
     <div class="card-header">
         <div class="d-flex justify-content-between">
             <span>Список станций</span>
-            <button class="btn btn-sm btn-success">+ Добавить станцию</button>
+            <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addStationModal">
+                + Добавить станцию
+            </button>
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
-            <div class="list-group-item">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>Станция #1</h5>
-                        <small>Мощность: 5 кВт</small>
-                    </div>
-                    <div>
-                        <button class="btn btn-sm btn-outline-primary">Управлять</button>
-                    </div>
-                </div>
-            </div>
+        <div class="list-group" id="station-list">
+            <!-- Станции будут загружены через JS -->
         </div>
     </div>
 </div>
+
+<!-- Модальное окно: Форма добавления станции -->
+<div class="modal fade" id="addStationModal" tabindex="-1" aria-labelledby="addStationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addStationModalLabel">Добавить новую станцию</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <form id="addStationForm">
+                <input type="hidden" name="csrfmiddlewareexempt" value="{{ csrf_token }}">
+                <div class="modal-body">
+
+                    <!-- Поле местоположения -->
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Местоположение</label>
+                            <input type="text" name="location" id="locationInput" class="form-control"
+                                   placeholder="Введите адрес или выберите на карте" required>
+                        </div>
+                    </div>
+
+                    <!-- Карта -->
+                    <div class="mb-3">
+                        <label class="form-label">Выберите место на карте</label>
+                        <div id="map" style="height: 300px;"></div>
+                    </div>
+
+                    <!-- Скрытые поля координат -->
+                    <input type="hidden" name="latitude" id="latitude">
+                    <input type="hidden" name="longitude" id="longitude">
+
+                    <h5>1. Общие данные о системе</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Название системы</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип системы</label>
+                            <select name="system_type" class="form-select" required>
+                                <option selected disabled>Выберите тип</option>
+                                <option value="Сетевая">Сетевая</option>
+                                <option value="Гибридная">Гибридная</option>
+                                <option value="Автономная">Автономная</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Установленная мощность (кВт)</label>
+                            <input type="number" step="0.1" name="installed_power" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Дата установки</label>
+                            <input type="date" name="installation_date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>2. Панели</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Количество панелей</label>
+                            <input type="number" name="panel_count" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип панелей</label>
+                            <select name="panel_type" class="form-select" required>
+                                <option selected disabled>Выберите тип</option>
+                                <option value="Монокристалл">Монокристалл</option>
+                                <option value="Поликристалл">Поликристалл</option>
+                                <option value="Тонкая плёнка">Тонкая плёнка</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Мощность одной панели (Вт)</label>
+                            <input type="number" step="0.1" name="panel_power" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Производитель панелей</label>
+                            <input type="text" name="panel_manufacturer" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Угол наклона</label>
+                            <input type="number" step="0.1" name="tilt_angle" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Ориентация</label>
+                            <input type="text" name="orientation" class="form-control" placeholder="например: Южное" required>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>3. Инвертор</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Тип инвертора</label>
+                            <select name="inverter_type" class="form-select" required>
+                                <option selected disabled>Выберите тип</option>
+                                <option value="Сетевой">Сетевой</option>
+                                <option value="Гибридный">Гибридный</option>
+                                <option value="Автономный">Автономный</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Мощность инвертора (кВт)</label>
+                            <input type="number" step="0.1" name="inverter_power" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Производитель инвертора</label>
+                            <input type="text" name="inverter_manufacturer" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип контроллера</label>
+                            <select name="controller_type" class="form-select" required>
+                                <option selected disabled>Выберите тип</option>
+                                <option value="PWM">PWM</option>
+                                <option value="MPPT">MPPT</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>4. Аккумуляторная система</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Тип аккумуляторов</label>
+                            <select name="battery_type" class="form-select" required>
+                                <option selected disabled>Выберите тип</option>
+                                <option value="Свинцово-кислотные">Свинцово-кислотные</option>
+                                <option value="AGM">AGM</option>
+                                <option value="Гелевые">Гелевые</option>
+                                <option value="Литиевые">Литиевые</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Количество аккумуляторов</label>
+                            <input type="number" name="battery_count" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Емкость одного аккумулятора (кВт·ч)</label>
+                            <input type="number" step="0.1" name="battery_capacity_single" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Напряжение системы</label>
+                            <select name="battery_voltage" class="form-select" required>
+                                <option selected disabled>Выберите напряжение</option>
+                                <option value="12 В">12 В</option>
+                                <option value="24 В">24 В</option>
+                                <option value="48 В">48 В</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Производитель</label>
+                            <input type="text" name="battery_manufacturer" class="form-control" required>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Форма редактирования станции -->
+<div class="modal fade" id="editStationModal" tabindex="-1" aria-labelledby="editStationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editStationModalLabel">Редактировать станцию</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <form id="editStationForm">
+                <input type="hidden" name="csrfmiddlewareexempt" value="{{ csrf_token }}">
+                <input type="hidden" name="station_id" id="stationIdInput">
+                <div class="modal-body">
+
+                    <!-- Поле местоположения -->
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Местоположение</label>
+                            <input type="text" name="location" id="editLocationInput" class="form-control"
+                                   placeholder="Введите адрес или выберите на карте" required>
+                        </div>
+                    </div>
+
+                    <!-- Карта -->
+                    <div class="mb-3">
+                        <label class="form-label">Выберите место на карте</label>
+                        <div id="editMap" style="height: 300px;"></div>
+                    </div>
+
+                    <!-- Скрытые поля координат -->
+                    <input type="hidden" name="latitude" id="editLatitude">
+                    <input type="hidden" name="longitude" id="editLongitude">
+
+                    <h5>1. Общие данные о системе</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Название системы</label>
+                            <input type="text" name="name" id="editName" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип системы</label>
+                            <select name="system_type" id="editSystemType" class="form-select" required>
+                                <option value="Сетевая">Сетевая</option>
+                                <option value="Гибридная">Гибридная</option>
+                                <option value="Автономная">Автономная</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Установленная мощность (кВт)</label>
+                            <input type="number" step="0.1" name="installed_power" id="editInstalledPower" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Дата установки</label>
+                            <input type="date" name="installation_date" id="editInstallationDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>2. Панели</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Количество панелей</label>
+                            <input type="number" name="panel_count" id="editPanelCount" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип панелей</label>
+                            <select name="panel_type" id="editPanelType" class="form-select" required>
+                                <option value="Монокристалл">Монокристалл</option>
+                                <option value="Поликристалл">Поликристалл</option>
+                                <option value="Тонкая плёнка">Тонкая плёнка</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Мощность одной панели (Вт)</label>
+                            <input type="number" step="0.1" name="panel_power" id="editPanelPower" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Производитель панелей</label>
+                            <input type="text" name="panel_manufacturer" id="editPanelManufacturer" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Угол наклона</label>
+                            <input type="number" step="0.1" name="tilt_angle" id="editTiltAngle" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Ориентация</label>
+                            <input type="text" name="orientation" id="editOrientation" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>3. Инвертор</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Тип инвертора</label>
+                            <select name="inverter_type" id="editInverterType" class="form-select" required>
+                                <option value="Сетевой">Сетевой</option>
+                                <option value="Гибридный">Гибридный</option>
+                                <option value="Автономный">Автономный</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Мощность инвертора (кВт)</label>
+                            <input type="number" step="0.1" name="inverter_power" id="editInverterPower" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Производитель инвертора</label>
+                            <input type="text" name="inverter_manufacturer" id="editInverterManufacturer" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Тип контроллера</label>
+                            <select name="controller_type" id="editControllerType" class="form-select" required>
+                                <option value="PWM">PWM</option>
+                                <option value="MPPT">MPPT</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h5>4. Аккумуляторная система</h5>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Тип аккумуляторов</label>
+                            <select name="battery_type" id="editBatteryType" class="form-select" required>
+                                <option value="Свинцово-кислотные">Свинцово-кислотные</option>
+                                <option value="AGM">AGM</option>
+                                <option value="Гелевые">Гелевые</option>
+                                <option value="Литиевые">Литиевые</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Количество аккумуляторов</label>
+                            <input type="number" name="battery_count" id="editBatteryCount" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Емкость одного аккумулятора (кВт·ч)</label>
+                            <input type="number" step="0.1" name="battery_capacity_single" id="editBatteryCapacitySingle" class="form-control" required>
+                        </div>
+                        <div class="col">
+                            <label class="form-label">Напряжение системы</label>
+                            <select name="battery_voltage" id="editBatteryVoltage" class="form-select" required>
+                                <option value="12 В">12 В</option>
+                                <option value="24 В">24 В</option>
+                                <option value="48 В">48 В</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Производитель</label>
+                            <input type="text" name="battery_manufacturer" id="editBatteryManufacturer" class="form-control" required>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"  />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- Bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    .modal-open {
+        overflow: auto !important;
+        padding-right: 0 !important;
+    }
+
+    .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    #map,
+    #editMap {
+        height: 300px !important;
+        width: 100%;
+    }
+
+    .leaflet-control-attribution {
+        display: none !important;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const stationList = document.getElementById('station-list');
+
+    // Загрузка станций
+    fetch("/user/stations/")
+        .then(response => response.json())
+        .then(stations => {
+            stationList.innerHTML = "";
+            stations.forEach(station => {
+                const item = document.createElement("div");
+                item.className = "list-group-item";
+                item.innerHTML = `
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5>${station.name}</h5>
+                            <small>Мощность: ${station.installed_power} кВт</small><br>
+                            <small>Местоположение: ${station.location}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    onclick="viewDetails(${station.id})">
+                                Управлять
+                            </button>
+                        </div>
+                    </div>
+                `;
+                stationList.appendChild(item);
+            });
+        });
+
+    // Отправка формы добавления
+    document.getElementById("addStationForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("/user/stations/add/", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewareexempt]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("Станция добавлена!");
+            window.location.reload();
+        })
+        .catch(error => {
+            alert("Ошибка при добавлении станции");
+            console.error(error);
+        });
+    });
+
+    // Очистка формы после закрытия
+    document.getElementById('addStationModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById("addStationForm").reset();
+        if (window.map) {
+            map.remove();
+            window.map = null;
+        }
+    });
+});
+
+// Инициализация карты
+let map = null;
+
+function initMap(lat = 55.751244, lon = 37.618423) {
+    if (map) {
+        map.remove();
+    }
+
+    map = L.map('map').setView([lat, lon], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',  {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+
+    marker.on('dragend', function(event) {
+        const position = marker.getLatLng();
+        document.getElementById('latitude').value = position.lat;
+        document.getElementById('longitude').value = position.lng;
+        reverseGeocode(position.lat, position.lng, 'locationInput');
+    });
+
+    map.on('click', function(e) {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        reverseGeocode(lat, lng, 'locationInput');
+    });
+
+    document.getElementById('locationInput').addEventListener('change', function () {
+        const address = this.value.trim();
+        if (address) {
+            geocodeAddress(address, map, marker, 'latitude', 'longitude', 'locationInput');
+        }
+    });
+}
+
+// При открытии модалки
+document.getElementById('addStationModal').addEventListener('shown.bs.modal', function () {
+    if (!map) {
+        initMap();
+    } else {
+        map.invalidateSize(); // Обновляем размер карты
+    }
+});
+
+// Обратное геокодирование
+function reverseGeocode(lat, lon, inputId) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.display_name) {
+                document.getElementById(inputId).value = data.display_name;
+            }
+        });
+}
+
+// Прямое геокодирование
+function geocodeAddress(address, mapRef, markerRef, latInput, lonInput, locationInput) {
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lon = parseFloat(data[0].lon);
+                mapRef.setView([lat, lon], 13);
+                markerRef.setLatLng([lat, lon]);
+                document.getElementById(latInput).value = lat;
+                document.getElementById(lonInput).value = lon;
+                document.getElementById(locationInput).value = data[0].display_name || address;
+            }
+        });
+}
+
+// Просмотр детальной информации
+function viewDetails(station_id) {
+    fetch(`/user/stations/${station_id}/`)
+        .then(response => response.json())
+        .then(station => {
+            let detailsHTML = `
+                <div class="container-fluid">
+                    <div class="row g-3">
+                        <div class="col-md-6"><strong>Название:</strong> ${station.name || '-'}</div>
+                        <div class="col-md-6"><strong>Местоположение:</strong> ${station.location || '-'}</div>
+                        <div class="col-md-6"><strong>Тип системы:</strong> ${station.system_type || '-'}</div>
+                        <div class="col-md-6"><strong>Мощность:</strong> ${station.installed_power || '-'} кВт</div>
+                        <div class="col-md-6"><strong>Количество панелей:</strong> ${station.panel_count || '-'}</div>
+                        <div class="col-md-6"><strong>Тип панелей:</strong> ${station.panel_type || '-'}</div>
+                        <div class="col-md-6"><strong>Инвертор:</strong> ${station.inverter_type} / ${station.inverter_power} кВт</div>
+                        <div class="col-md-6"><strong>Аккумуляторы:</strong> ${station.battery_type}, ${station.battery_capacity_single * station.battery_count} кВт·ч</div>
+                    </div>
+                </div>
+            `;
+
+            const modalDiv = document.createElement('div');
+            modalDiv.className = 'modal fade';
+            modalDiv.innerHTML = `
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">${station.name}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            ${detailsHTML}
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" onclick="editStation(${station.id})">
+                                Изменить
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modalDiv);
+            const modal = new bootstrap.Modal(modalDiv);
+            modal.show();
+        });
+}
+
+// Редактирование станции
+let editMapInstance = null;
+
+function editStation(station_id) {
+    fetch(`/user/stations/${station_id}/`)
+        .then(response => response.json())
+        .then(station => {
+
+            // Заполняем форму
+            document.getElementById("stationIdInput").value = station.id;
+            document.getElementById("editName").value = station.name;
+            document.getElementById("editLocationInput").value = station.location;
+            document.getElementById("editSystemType").value = station.system_type;
+            document.getElementById("editInstalledPower").value = station.installed_power;
+            document.getElementById("editInstallationDate").value = station.installation_date;
+            document.getElementById("editPanelCount").value = station.panel_count;
+            document.getElementById("editPanelType").value = station.panel_type;
+            document.getElementById("editPanelPower").value = station.panel_power;
+            document.getElementById("editPanelManufacturer").value = station.panel_manufacturer;
+            document.getElementById("editTiltAngle").value = station.tilt_angle;
+            document.getElementById("editOrientation").value = station.orientation;
+            document.getElementById("editInverterType").value = station.inverter_type;
+            document.getElementById("editInverterPower").value = station.inverter_power;
+            document.getElementById("editInverterManufacturer").value = station.inverter_manufacturer;
+            document.getElementById("editControllerType").value = station.controller_type;
+            document.getElementById("editBatteryType").value = station.battery_type;
+            document.getElementById("editBatteryCount").value = station.battery_count;
+            document.getElementById("editBatteryCapacitySingle").value = station.battery_capacity_single;
+            document.getElementById("editBatteryVoltage").value = station.battery_voltage;
+            document.getElementById("editBatteryManufacturer").value = station.battery_manufacturer;
+
+            const lat = station.latitude || 55.751244;
+            const lon = station.longitude || 37.618423;
+
+            // Удаляем предыдущую карту
+            if (editMapInstance) {
+                editMapInstance.remove();
+                editMapInstance = null;
+            }
+
+            // Открываем модалку
+            const modal = new bootstrap.Modal(document.getElementById('editStationModal'));
+            modal.show();
+
+            // Инициализируем карту после открытия модала
+            document.getElementById('editStationModal').addEventListener('shown.bs.modal', function () {
+                initEditMap(lat, lon);
+            });
+        });
+}
+
+// Инициализация карты в модальном окне редактирования
+function initEditMap(lat = 55.751244, lon = 37.618423) {
+    editMapInstance = L.map('editMap').setView([lat, lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(editMapInstance);
+
+    const marker = L.marker([lat, lon], { draggable: true }).addTo(editMapInstance);
+
+    marker.on('dragend', function(event) {
+        const position = marker.getLatLng();
+        document.getElementById('editLatitude').value = position.lat;
+        document.getElementById('editLongitude').value = position.lng;
+        reverseGeocode(position.lat, position.lng, 'editLocationInput');
+    });
+
+    editMapInstance.on('click', function(e) {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        document.getElementById('editLatitude').value = lat;
+        document.getElementById('editLongitude').value = lng;
+        reverseGeocode(lat, lng, 'editLocationInput');
+    });
+
+    // Автоматическое обновление по полю
+    const locationInput = document.getElementById('editLocationInput');
+    locationInput.addEventListener('change', function () {
+        const address = this.value.trim();
+        if (address) {
+            geocodeAddress(address, editMapInstance, marker, 'editLatitude', 'editLongitude', 'editLocationInput');
+        }
+    });
+}
+
+// Отправка формы редактирования
+document.getElementById("editStationForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const station_id = formData.get('station_id');
+
+    fetch(`/user/stations/edit/${station_id}/`, {
+        method: "POST",
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewareexempt]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert("Изменения сохранены");
+        window.location.reload();
+    })
+    .catch(error => {
+        alert("Ошибка при редактировании");
+        console.error(error);
+    });
+});
+
+// Сброс формы при закрытии модалки редактирования
+document.getElementById('editStationModal').addEventListener('hidden.bs.modal', function () {
+    if (editMapInstance) {
+        editMapInstance.remove();
+        editMapInstance = null;
+    }
+    document.getElementById("editStationForm").reset();
+});
+</script>
+
 {% endblock %}

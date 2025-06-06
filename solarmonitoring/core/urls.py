@@ -1,6 +1,6 @@
-from django.urls import path
 from . import views
 from .views import custom_logout
+from django.urls import include, path
 
 urlpatterns = [
     # Админские URLs
@@ -13,4 +13,5 @@ urlpatterns = [
     path('base/map/', views.admin_interactive_map, name='admin_map'),
     path('base/sales/', views.admin_sales_board, name='admin_sales'),
     path('logout/', custom_logout, name='logout'),
+    path('user/', include('core.user_urls'))
 ]

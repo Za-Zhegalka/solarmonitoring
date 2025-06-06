@@ -54,3 +54,4 @@ def custom_logout(request):
     logout(request)
     request.session.flush()  # Полная очистка сессии
     return redirect('login')
+

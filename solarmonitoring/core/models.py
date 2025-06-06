@@ -99,3 +99,65 @@ class SaleAdvertisement(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+from django.db import models
+
+class Station(models.Model):
+    # 1. Общие данные о системе
+    name = models.CharField("Название системы", max_length=255)
+    location = models.TextField("Местоположение")
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    system_type = models.CharField("Тип системы", max_length=50, choices=[
+        ('Сетевая', 'Сетевая'),
+        ('Гибридная', 'Гибридная'),
+        ('Автономная', 'Автономная')
+    ])
+    installed_power = models.FloatField("Установленная мощность (кВт)")
+    installation_date = models.DateField("Дата установки")
+
+    # 2. Параметры солнечных панелей
+    panel_count = models.PositiveIntegerField("Количество панелей")
+    panel_type = models.CharField("Тип панелей", max_length=50, choices=[
+        ('Монокристалл', 'Монокристалл'),
+        ('Поликристалл', 'Поликристалл'),
+        ('Тонкая плёнка', 'Тонкая плёнка')
+    ])
+    panel_power = models.FloatField("Мощность одной панели (Вт)")
+    panel_manufacturer = models.CharField("Производитель панелей", max_length=255)
+    tilt_angle = models.FloatField("Угол наклона")
+    orientation = models.CharField("Ориентация", max_length=50)
+
+    # 3. Инвертор
+    inverter_type = models.CharField("Тип инвертора", max_length=50, choices=[
+        ('Сетевой', 'Сетевой'),
+        ('Гибридный', 'Гибридный'),
+        ('Автономный', 'Автономный')
+    ])
+    inverter_power = models.FloatField("Мощность инвертора (кВт)")
+    inverter_manufacturer = models.CharField("Производитель инвертора", max_length=255)
+    controller_type = models.CharField("Тип контроллера", max_length=50, choices=[
+        ('PWM', 'PWM'),
+        ('MPPT', 'MPPT')
+    ])
+
+    # 4. Аккумуляторная система
+    battery_type = models.CharField("Тип аккумуляторов", max_length=50, choices=[
+        ('Свинцово-кислотные', 'Свинцово-кислотные'),
+        ('AGM', 'AGM'),
+        ('Гелевые', 'Гелевые'),
+        ('Литиевые', 'Литиевые')
+    ])
+    battery_count = models.PositiveIntegerField("Количество аккумуляторов")
+    battery_capacity_single = models.FloatField("Емкость одного аккумулятора (кВт·ч)")
+    battery_voltage = models.CharField("Напряжение системы", max_length=10, choices=[
+        ('12 В', '12 В'), ('24 В', '24 В'), ('48 В', '48 В')
+    ])
+    battery_manufacturer = models.CharField("Производитель", max_length=255)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Станция"
+        verbose_name_plural = "Станции"
