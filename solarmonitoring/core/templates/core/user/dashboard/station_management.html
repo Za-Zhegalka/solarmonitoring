@@ -329,7 +329,7 @@
 
                     <hr>
 
-                    <h5>4. Аккумуляторная система</h5>
+                    <h5>4. Аккумуляторы</h5>
                     <div class="row mb-3">
                         <div class="col">
                             <label class="form-label">Тип аккумуляторов</label>
@@ -394,10 +394,8 @@
         overflow-y: auto;
     }
 
-    #map,
     #editMap {
         height: 300px !important;
-        width: 100%;
     }
 
     .leaflet-control-attribution {
@@ -439,6 +437,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Отправка формы добавления
     document.getElementById("addStationForm").addEventListener("submit", function(e) {
         e.preventDefault();
+
         const formData = new FormData(this);
 
         fetch("/user/stations/add/", {
@@ -459,7 +458,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // Очистка формы после закрытия
+    // Сброс формы при закрытии
     document.getElementById('addStationModal').addEventListener('hidden.bs.modal', function () {
         document.getElementById("addStationForm").reset();
         if (window.map) {
@@ -470,19 +469,16 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // Инициализация карты
-let map = null;
+let map, marker;
 
 function initMap(lat = 55.751244, lon = 37.618423) {
-    if (map) {
-        map.remove();
-    }
-
     map = L.map('map').setView([lat, lon], 5);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',  {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    let marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+    marker = L.marker([lat, lon], { draggable: true }).addTo(map);
 
     marker.on('dragend', function(event) {
         const position = marker.getLatLng();
@@ -499,12 +495,7 @@ function initMap(lat = 55.751244, lon = 37.618423) {
         reverseGeocode(lat, lng, 'locationInput');
     });
 
-    document.getElementById('locationInput').addEventListener('change', function () {
-        const address = this.value.trim();
-        if (address) {
-            geocodeAddress(address, map, marker, 'latitude', 'longitude', 'locationInput');
-        }
-    });
+    window.map = map;
 }
 
 // При открытии модалки
@@ -518,7 +509,7 @@ document.getElementById('addStationModal').addEventListener('shown.bs.modal', fu
 
 // Обратное геокодирование
 function reverseGeocode(lat, lon, inputId) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`)
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18`)
         .then(response => response.json())
         .then(data => {
             if (data && data.display_name) {
@@ -539,10 +530,18 @@ function geocodeAddress(address, mapRef, markerRef, latInput, lonInput, location
                 markerRef.setLatLng([lat, lon]);
                 document.getElementById(latInput).value = lat;
                 document.getElementById(lonInput).value = lon;
-                document.getElementById(locationInput).value = data[0].display_name || address;
+                document.getElementById(locationInput).value = data[0].display_name;
             }
         });
 }
+
+// Событие при вводе текста
+document.getElementById('locationInput').addEventListener('change', function () {
+    const address = this.value.trim();
+    if (address) {
+        geocodeAddress(address, map, marker, 'latitude', 'longitude', 'locationInput');
+    }
+});
 
 // Просмотр детальной информации
 function viewDetails(station_id) {
@@ -593,14 +592,30 @@ function viewDetails(station_id) {
 }
 
 // Редактирование станции
-let editMapInstance = null;
+let editMap, editMarker;
 
 function editStation(station_id) {
+    // Сначала закрываем все открытые модальные окна
+    const addModal = bootstrap.Modal.getInstance(document.getElementById('addStationModal'));
+    if (addModal) addModal.hide();
+
+    const viewModal = document.querySelector('.modal.show');
+    if (viewModal) {
+        const modalInstance = bootstrap.Modal.getInstance(viewModal);
+        if (modalInstance) modalInstance.hide();
+    }
+
+    // Загрузка данных и открытие формы редактирования
     fetch(`/user/stations/${station_id}/`)
         .then(response => response.json())
         .then(station => {
 
-            // Заполняем форму
+            // Очистка предыдущего состояния карты
+            if (editMap) {
+                editMap.remove();
+                editMap = null;
+            }
+
             document.getElementById("stationIdInput").value = station.id;
             document.getElementById("editName").value = station.name;
             document.getElementById("editLocationInput").value = station.location;
@@ -622,60 +637,74 @@ function editStation(station_id) {
             document.getElementById("editBatteryCapacitySingle").value = station.battery_capacity_single;
             document.getElementById("editBatteryVoltage").value = station.battery_voltage;
             document.getElementById("editBatteryManufacturer").value = station.battery_manufacturer;
+            document.getElementById("editLatitude").value = station.latitude || 55.751244;
+            document.getElementById("editLongitude").value = station.longitude || 37.618423;
 
-            const lat = station.latitude || 55.751244;
-            const lon = station.longitude || 37.618423;
+            // Инициализируем карту
+            initEditMap(station.latitude || 55.751244, station.longitude || 37.618423);
 
-            // Удаляем предыдущую карту
-            if (editMapInstance) {
-                editMapInstance.remove();
-                editMapInstance = null;
-            }
-
-            // Открываем модалку
+            // Открываем модальное окно
             const modal = new bootstrap.Modal(document.getElementById('editStationModal'));
             modal.show();
-
-            // Инициализируем карту после открытия модала
-            document.getElementById('editStationModal').addEventListener('shown.bs.modal', function () {
-                initEditMap(lat, lon);
-            });
         });
 }
 
 // Инициализация карты в модальном окне редактирования
 function initEditMap(lat = 55.751244, lon = 37.618423) {
-    editMapInstance = L.map('editMap').setView([lat, lon], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    if (editMap) {
+        editMap.remove(); // Очищаем предыдущую карту
+    }
+
+    // Создаем новую карту
+    editMap = L.map('editMap').setView([lat, lon], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',  {
         attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(editMapInstance);
+    }).addTo(editMap);
 
-    const marker = L.marker([lat, lon], { draggable: true }).addTo(editMapInstance);
+    editMarker = L.marker([lat, lon], { draggable: true }).addTo(editMap);
 
-    marker.on('dragend', function(event) {
-        const position = marker.getLatLng();
+    // Обновляем координаты при перетаскивании маркера
+    editMarker.on('dragend', function(event) {
+        const position = editMarker.getLatLng();
         document.getElementById('editLatitude').value = position.lat;
         document.getElementById('editLongitude').value = position.lng;
         reverseGeocode(position.lat, position.lng, 'editLocationInput');
     });
 
-    editMapInstance.on('click', function(e) {
+    // Обновляем координаты при клике на карту
+    editMap.on('click', function(e) {
         const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
+        editMarker.setLatLng([lat, lng]);
         document.getElementById('editLatitude').value = lat;
         document.getElementById('editLongitude').value = lng;
         reverseGeocode(lat, lng, 'editLocationInput');
     });
 
-    // Автоматическое обновление по полю
+    // Автоматическое обновление по полю адреса
     const locationInput = document.getElementById('editLocationInput');
     locationInput.addEventListener('change', function () {
         const address = this.value.trim();
         if (address) {
-            geocodeAddress(address, editMapInstance, marker, 'editLatitude', 'editLongitude', 'editLocationInput');
+            geocodeAddress(address, editMap, editMarker, 'editLatitude', 'editLongitude', 'editLocationInput');
         }
     });
 }
+
+// Событие срабатывает ПОСЛЕ открытия модального окна
+document.getElementById('editStationModal').addEventListener('shown.bs.modal', function () {
+    const lat = parseFloat(document.getElementById('editLatitude').value) || 55.751244;
+    const lon = parseFloat(document.getElementById('editLongitude').value) || 37.618423;
+
+    // Пересоздаем карту
+    initEditMap(lat, lon);
+
+    // ВАЖНО: обновляем размер карты после отображения
+    setTimeout(() => {
+        if (editMap) {
+            editMap.invalidateSize();
+        }
+    }, 300); // Небольшая задержка для гарантии отображения модала
+});
 
 // Отправка формы редактирования
 document.getElementById("editStationForm").addEventListener("submit", function(e) {
@@ -700,15 +729,6 @@ document.getElementById("editStationForm").addEventListener("submit", function(e
         alert("Ошибка при редактировании");
         console.error(error);
     });
-});
-
-// Сброс формы при закрытии модалки редактирования
-document.getElementById('editStationModal').addEventListener('hidden.bs.modal', function () {
-    if (editMapInstance) {
-        editMapInstance.remove();
-        editMapInstance = null;
-    }
-    document.getElementById("editStationForm").reset();
 });
 </script>
 
