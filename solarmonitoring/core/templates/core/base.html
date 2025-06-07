@@ -437,16 +437,6 @@
 
                                 <!-- Общие разделы для админа -->
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark menu-item {% if 'community' in request.path %}active{% endif %}"
-                                       href="{% url 'admin_community' %}">
-                                        <span class="menu-icon" style="color: var(--success);">
-                                            <i class="bi bi-people"></i>
-                                        </span>
-                                        Сообщество
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
                                     <a class="nav-link text-dark menu-item {% if 'map' in request.path %}active{% endif %}"
                                        href="{% url 'admin_map' %}">
                                         <span class="menu-icon" style="color: var(--danger);">
