@@ -8,6 +8,18 @@ from django.http import JsonResponse
 from django.views import View
 from .models import Station
 
+# Список регионов России (упрощённый)
+RUSSIAN_REGIONS = [
+    "Центральный федеральный округ",
+    "Северо-Западный федеральный округ",
+    "Южный федеральный округ",
+    "Северо-Кавказский федеральный округ",
+    "Приволжский федеральный округ",
+    "Уральский федеральный округ",
+    "Сибирский федеральный округ",
+    "Дальневосточный федеральный округ"
+]
+
 @login_required
 def profile(request):
     if request.user.is_operator:
@@ -68,13 +80,10 @@ def recommendations(request):
 
 @login_required
 def interactive_map(request):
-    """Интерактивная карта (пользовательская версия)"""
-    if request.user.is_operator:
-        return redirect('admin_map')
-
-    user_stations = SolarStation.objects.filter(owner=request.user)
-    return render(request, 'core/user/interactive_map.html',
-                  {'stations': user_stations})
+    context = {
+        'regions': RUSSIAN_REGIONS
+    }
+    return render(request, 'core/user/interactive_map.html', context=context)
 
 
 @login_required
@@ -104,6 +113,12 @@ def get_station_details(request, station_id):
     except Station.DoesNotExist:
         return JsonResponse({'error': 'Not found'}, status=404)
 
+def get_stations_for_map(request):
+    stations = Station.objects.filter(latitude__isnull=False, longitude__isnull=False)
+    data = list(stations.values(
+        'id', 'name', 'latitude', 'longitude', 'location'
+    ))
+    return JsonResponse(data, safe=False)
 
 class AddStationView(View):
     def post(self, request):
