@@ -1,6 +1,9 @@
 {% extends "core/user/dashboard/base.html" %}
 
 {% block content %}
+<!-- Подключение Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2>Мониторинг станций</h2>
     <div class="btn-group">
@@ -17,11 +20,8 @@
                 <h5 class="mb-0">Выработка энергии</h5>
             </div>
             <div class="card-body">
-                <div id="energyChart" style="height: 300px; background: #f8f9fa; border-radius: 4px;">
-                    <div class="text-center py-5 text-muted">
-                        Здесь будет график выработки энергии
-                    </div>
-                </div>
+                <!-- Здесь будет график -->
+                <canvas id="energyChart" height="100"></canvas>
             </div>
         </div>
     </div>
@@ -57,7 +57,7 @@
             <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1">Станция #1</h6>
+                        <h6 class="mb-1">СЭС Домашняя</h6>
                         <small class="text-muted">Последняя проверка: сегодня 10:15</small>
                     </div>
                     <span class="badge bg-success">Норма</span>
@@ -66,13 +66,106 @@
             <div class="list-group-item">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="mb-1">Станция #2</h6>
-                        <small class="text-muted">Последняя проверка: сегодня 10:17</small>
+                        <h6 class="mb-1">СЭС на даче</h6>
+                        <small class="text-muted">Последняя проверка: сегодня 10:15</small>
                     </div>
                     <span class="badge bg-warning text-dark">Требует внимания</span>
+                </div>
+            </div>
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Автономная СЭС</h6>
+                        <small class="text-muted">Последняя проверка: сегодня 10:15</small>
+                    </div>
+                    <span class="badge bg-warning text-dark">Требует внимания</span>
+                </div>
+            </div>
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Производственная СЭС №1</h6>
+                        <small class="text-muted">Последняя проверка: сегодня 10:15</small>
+                    </div>
+                    <span class="badge bg-success">Норма</span>
+                </div>
+            </div>
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Производственная СЭС №2</h6>
+                        <small class="text-muted">Последняя проверка: сегодня 10:15</small>
+                    </div>
+                    <span class="badge bg-success">Норма</span>
+                </div>
+            </div>
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Производственная СЭС №3</h6>
+                        <small class="text-muted">Последняя проверка: сегодня 10:15</small>
+                    </div>
+                    <span class="badge bg-success">Норма</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Скрипт для отрисовки заглушки графика -->
+<script>
+    const dailyEnergy = 18.7;
+
+    const weeklyData = Array(7).fill(dailyEnergy);
+
+    const ctx = document.getElementById('energyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+            datasets: [{
+                label: 'Выработка энергии (кВт·ч)',
+                data: weeklyData,
+                borderColor: '#2196f3',
+                backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#2196f3'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'кВт·ч'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дни недели'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 {% endblock %}

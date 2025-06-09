@@ -3,26 +3,76 @@
 {% block title %}Аналитика действий{% endblock %}
 
 {% block content %}
+<!-- Подключение Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="card shadow mb-4">
     <div class="card-header py-3">
-        <h2>Аналитика системы</h2>
+        <h2>Аналитика действий</h2>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
-                <h4>Активность пользователей</h4>
-                <div class="fake-chart" style="height: 300px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                    [График активности]
-                </div>
+                <canvas id="userActivityChart" height="100"></canvas>
             </div>
             <div class="col-md-6">
                 <h4>Последние события</h4>
                 <ul class="list-group">
-                    <li class="list-group-item">Пользователь user1 добавил станцию (12.05.2023)</li>
-                    <li class="list-group-item">Пользователь user2 отправил запрос в поддержку (11.05.2023)</li>
+                    <li class="list-group-item">Иван Петров добавил новую станцию «СЭС Домашняя» (11.05.2025, 14:22)</li>
+                    <li class="list-group-item">Ольга Смирнова изменила настройки мониторинга (11.05.2025, 13:48)</li>
+                    <li class="list-group-item">Алексей Кузнецов вошёл в систему с нового устройства (11.05.2025, 12:05)</li>
+                    <li class="list-group-item">Наталья Иванова отправила запрос в поддержку (11.05.2025, 11:33)</li>
+                    <li class="list-group-item">Дмитрий Орлов удалил старую запись о выработке (11.05.2025, 10:17)</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Скрипт для отрисовки заглушки графика -->
+<script>
+    const ctx = document.getElementById('userActivityChart').getContext('2d');
+
+    // Пример данных за 7 дней: случайные значения от 5 до 25
+    const activityData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 20) + 5);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['05.05', '06.05', '07.05', '08.05', '09.05', '10.05', '11.05'],
+            datasets: [{
+                label: 'Количество действий',
+                data: activityData,
+                backgroundColor: '#4caf50',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Действия'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Дата'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 {% endblock %}
