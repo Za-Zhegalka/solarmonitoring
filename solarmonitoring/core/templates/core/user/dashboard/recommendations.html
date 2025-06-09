@@ -1,75 +1,160 @@
 {% extends "core/user/dashboard/base.html" %}
-
 {% block content %}
+
 <h2 class="mb-4">Персонализированные рекомендации</h2>
 
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Оптимизация эффективности</h5>
-    </div>
-    <div class="card-body">
-        <div class="alert alert-success">
-            <h5><i class="bi bi-lightbulb"></i> Основная рекомендация</h5>
-            <p>Увеличьте угол наклона панелей до 35° для повышения эффективности на 15%</p>
-            <button class="btn btn-sm btn-success">Подробнее</button>
+<!-- Карточка с основной рекомендацией -->
+<section aria-labelledby="main-recommendation">
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+            <i class="bi bi-brightness-high me-2"></i>
+            <h5 id="main-recommendation" class="mb-0">Оптимизация эффективности</h5>
         </div>
+        <div class="card-body">
 
-        <div class="row mt-3">
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5>Очистка панелей</h5>
-                        <p>Рекомендуется очистить панели от пыли в ближайшие 3 дня</p>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-warning" style="width: 65%">65% эффективности</div>
+            <!-- Основная рекомендация -->
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+                <i class="bi bi-lightbulb fs-3 me-3 text-success"></i>
+                <div class="flex-grow-1">
+                    <h5>Основная рекомендация</h5>
+                    <p>Увеличьте угол наклона панелей до 35° для повышения эффективности на 15%</p>
+                    <small class="text-muted">Прогнозируемый эффект: +120 кВт·ч в день</small>
+                </div>
+                <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#recommendationModal">Подробнее</button>
+            </div>
+
+            <!-- Дополнительные рекомендации -->
+            <div class="row mt-3 g-3">
+                <div class="col-md-6">
+                    <div class="card h-100 border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title d-flex align-items-center">
+                                <i class="bi bi-droplet me-2"></i> Очистка панелей
+                            </h5>
+                            <p>Рекомендуется очистить панели от пыли в ближайшие 3 дня</p>
+                            <div class="progress mb-2" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-warning" style="width: 65%">65% эффективности</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="offcanvas" data-bs-target="#scheduleCleaning">
+                                Запланировать очистку
+                            </button>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary">Запланировать очистку</button>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100 border-info">
+                        <div class="card-body">
+                            <h5 class="card-title d-flex align-items-center">
+                                <i class="bi bi-tools me-2"></i> Замена оборудования
+                            </h5>
+                            <p>Инвертор требует профилактического обслуживания</p>
+                            <div class="progress mb-2" role="progressbar" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-info" style="width: 42%">42% износа</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#serviceContactModal">
+                                Контакты сервиса
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
 
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5>Замена оборудования</h5>
-                        <p>Инвертор требует профилактического обслуживания</p>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-info" style="width: 42%">42% износа</div>
-                        </div>
-                        <button class="btn btn-sm btn-outline-primary">Контакты сервиса</button>
-                    </div>
-                </div>
+<!-- История рекомендаций -->
+<section aria-labelledby="history-title">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 id="history-title" class="mb-0">История рекомендаций</h5>
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-secondary" title="Сортировать по дате"><i class="bi bi-calendar-event"></i></button>
+                <button class="btn btn-outline-secondary" title="Фильтр по статусу"><i class="bi bi-funnel"></i></button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">Дата</th>
+                            <th scope="col">Рекомендация</th>
+                            <th scope="col">Тип</th>
+                            <th scope="col">Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>11.05.2025</td>
+                            <td>Проверить соединения</td>
+                            <td><span class="badge bg-secondary">Техническое</span></td>
+                            <td><span class="badge bg-success">Выполнено</span></td>
+                        </tr>
+                        <tr>
+                            <td>11.05.2025</td>
+                            <td>Обновить прошивку</td>
+                            <td><span class="badge bg-primary">Прошивка</span></td>
+                            <td><span class="badge bg-warning text-dark">В процессе</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Модальное окно: Подробнее -->
+<div class="modal fade" id="recommendationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Подробности рекомендации</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p>Изменение угла наклона солнечных панелей до 35° позволит максимально эффективно использовать уровень солнечной инсоляции в вашем регионе.</p>
+                <p>Эффективность повысится на 15%, что эквивалентно увеличению суточной выработки энергии на 120 кВт·ч.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header bg-white">
-        <h5 class="mb-0">История рекомендаций</h5>
-    </div>
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Рекомендация</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>15.05.2023</td>
-                    <td>Проверить соединения</td>
-                    <td><span class="badge bg-success">Выполнено</span></td>
-                </tr>
-                <tr>
-                    <td>10.05.2023</td>
-                    <td>Обновить прошивку</td>
-                    <td><span class="badge bg-warning text-dark">В процессе</span></td>
-                </tr>
-            </tbody>
-        </table>
+<!-- Модальное окно: Контакты сервиса -->
+<div class="modal fade" id="serviceContactModal" tabindex="-1" aria-labelledby="serviceContactLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="serviceContactLabel">Контакты сервисного центра</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <p>Сервисный центр: ООО "ЭнергоТехСервис"</p>
+                <p>Телефон: +7 (800) 123-45-67</p>
+                <p>Email: support@energotech.ru</p>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Offcanvas: Планирование очистки -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="scheduleCleaning" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 id="offcanvasRightLabel">Запланировать очистку</h5>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form>
+            <div class="mb-3">
+                <label for="cleaningDate" class="form-label">Выберите дату</label>
+                <input type="date" class="form-control" id="cleaningDate">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Подтвердить</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
