@@ -14,10 +14,21 @@
     </select>
 </div>
 
-<!-- Кнопка включения погодного слоя -->
-<div class="form-check form-switch mb-3">
-    <input class="form-check-input" type="checkbox" role="switch" id="weatherToggle" onchange="toggleWeatherLayer()">
-    <label class="form-check-label" for="weatherToggle">Показать погоду ☁️</label>
+<!-- Блок управления погодой -->
+<div class="mb-3">
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="weatherToggle" onchange="toggleWeatherLayer(this.checked)">
+        <label class="form-check-label" for="weatherToggle">Показать погоду ☁️</label>
+    </div>
+
+    <!-- Выбор типа погоды -->
+    <div id="weatherOptions" class="mt-2" style="display: none;">
+        <label for="weatherTypeSelect" class="form-label">Выберите тип погоды:</label>
+        <select id="weatherTypeSelect" class="form-select" onchange="changeWeatherLayer(this.value)">
+            <option value="clouds_new">Облачность</option>
+            <option value="uvi_new">Ультрафиолет</option>
+        </select>
+    </div>
 </div>
 
 <!-- Карта -->
@@ -91,24 +102,39 @@
         }
     }
 
-    function toggleWeatherLayer() {
-        const isChecked = document.getElementById('weatherToggle').checked;
+    function toggleWeatherLayer(isChecked) {
+        const weatherOptions = document.getElementById('weatherOptions');
         if (isChecked) {
+            weatherOptions.style.display = 'block';
+            const selectedType = document.getElementById('weatherTypeSelect').value;
             if (!weatherLayer) {
-                weatherLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/{type}/{z}/{x}/{y}.png?appid={apiKey}', {
-                    maxZoom: 19,
-                    attribution: 'Weather data © OpenWeatherMap',
-                    apiKey: 'YOUR_OPENWEATHERMAP_API_KEY',
-                    type: 'clouds_new'
-                });
-                weatherLayer.addTo(map);
+                addWeatherLayer(selectedType);
             }
         } else {
+            weatherOptions.style.display = 'none';
             if (weatherLayer) {
                 map.removeLayer(weatherLayer);
                 weatherLayer = null;
             }
         }
+    }
+
+    function addWeatherLayer(type) {
+        const apiKey = '0548f427495590a4da9a52324f7546e0'; // Замените на свой ключ
+        weatherLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/{type}/{z}/{x}/{y}.png?appid={apiKey}', {
+            maxZoom: 18,
+            attribution: 'Погода от OpenWeatherMap',
+            apiKey: apiKey,
+            type: type
+        });
+        weatherLayer.addTo(map);
+    }
+
+    function changeWeatherLayer(type) {
+        if (weatherLayer) {
+            map.removeLayer(weatherLayer);
+        }
+        addWeatherLayer(type);
     }
 </script>
 
