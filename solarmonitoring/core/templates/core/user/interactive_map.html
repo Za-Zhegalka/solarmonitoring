@@ -5,7 +5,7 @@
 
 <!-- Форма фильтра -->
 <div class="mb-3">
-    <label for="regionSelect" class="form-label">Выберите регион:</label>
+    <label for="regionSelect" class="form-label">Выберите федеральный округ:</label>
     <select id="regionSelect" class="form-select" onchange="zoomToRegion(this.value)">
         <option value="">-- Выберите регион --</option>
         {% for region in regions %}
@@ -43,27 +43,17 @@
     let weatherLayer = null;
 
     const defaultCenter = [55.751244, 37.618423]; // Москва
-    const regions = {
-        {% for region in regions %}
-        "{{ region }}": null,
-        {% endfor %}
-    };
 
-    function geocodeRegion(regionName) {
-        return fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(regionName)}&country=Russia`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    return {
-                        lat: parseFloat(data[0].lat),
-                        lon: parseFloat(data[0].lon),
-                        bounds: data[0].boundingbox.map(parseFloat).reverse()
-                    };
-                } else {
-                    throw new Error("Регион не найден");
-                }
-            });
-    }
+    const federalDistricts = {
+        "Центральный": [55.751244, 37.618423],
+        "Северо-Западный": [59.9343, 30.3351],
+        "Южный": [47.2355, 39.7078],
+        "Северо-Кавказский": [43.5872, 45.6856],
+        "Приволжский": [56.3286, 44.0021],
+        "Уральский": [56.8387, 60.6042],
+        "Сибирский": [55.0302, 82.9207],
+        "Дальневосточный": [49.9490, 135.0732]
+    };
 
     async function loadStationsOnMap() {
         const response = await fetch('/user/map/stations/');
@@ -82,7 +72,7 @@
     document.addEventListener("DOMContentLoaded", function () {
         map = L.map('map').setView(defaultCenter, 5);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',  {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
@@ -90,15 +80,14 @@
         loadStationsOnMap();
     });
 
-    async function zoomToRegion(region) {
+    function zoomToRegion(region) {
         if (!region) return;
 
-        try {
-            const result = await geocodeRegion(region);
-            const bounds = [[result.bounds[0], result.bounds[1]], [result.bounds[2], result.bounds[3]]];
-            map.fitBounds(bounds);
-        } catch (e) {
-            alert("Не удалось найти регион: " + region);
+        const coords = federalDistricts[region];
+        if (coords) {
+            map.setView(coords, 5); // Уровень зума 5 подходит для округа
+        } else {
+            alert("Неизвестный регион: " + region);
         }
     }
 
@@ -106,12 +95,11 @@
         const isChecked = document.getElementById('weatherToggle').checked;
         if (isChecked) {
             if (!weatherLayer) {
-                // Создаем погодный слой
                 weatherLayer = L.tileLayer('https://{s}.tile.openweathermap.org/map/{type}/{z}/{x}/{y}.png?appid={apiKey}', {
                     maxZoom: 19,
                     attribution: 'Weather data © OpenWeatherMap',
-                    apiKey: 'YOUR_OPENWEATHERMAP_API_KEY', // Замените на свой ключ
-                    type: 'clouds_new' // можно изменить на rain_new, temp_new и т.д.
+                    apiKey: 'YOUR_OPENWEATHERMAP_API_KEY',
+                    type: 'clouds_new'
                 });
                 weatherLayer.addTo(map);
             }

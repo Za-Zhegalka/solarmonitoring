@@ -1,5 +1,5 @@
 from django.urls import path
-from . import user_views  # Изменено с solarmonitoring.core.templates
+from . import user_views
 from django.contrib.auth.decorators import login_required
 from .user_views import get_stations, AddStationView, get_station_details, EditStationView, get_stations_for_map
 

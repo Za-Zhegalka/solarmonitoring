@@ -80,10 +80,17 @@ def recommendations(request):
 
 @login_required
 def interactive_map(request):
-    context = {
-        'regions': RUSSIAN_REGIONS
-    }
-    return render(request, 'core/user/interactive_map.html', context=context)
+    regions = [
+        "Центральный",
+        "Северо-Западный",
+        "Южный",
+        "Северо-Кавказский",
+        "Приволжский",
+        "Уральский",
+        "Сибирский",
+        "Дальневосточный"
+    ]
+    return render(request, 'core/user/interactive_map.html', {'regions': regions})
 
 
 @login_required
