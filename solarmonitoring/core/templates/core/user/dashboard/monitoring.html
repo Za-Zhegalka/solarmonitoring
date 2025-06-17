@@ -20,7 +20,7 @@
                 <h5 class="mb-0">Выработка энергии</h5>
             </div>
             <div class="card-body">
-                <!-- Здесь будет график -->
+                <!-- График -->
                 <canvas id="energyChart" height="100"></canvas>
             </div>
         </div>
@@ -54,15 +54,16 @@
         <h5 class="mb-0">Состояние оборудования</h5>
     </div>
     <div class="card-body">
-        <div class="list-group">
-            {% for name, last_checked, status in stations %}
+        <div class="list-group" id="equipment-list">
+            {% for name, last_checked, badge_class, label in stations %}
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="mb-1">{{ name }}</h6>
-                            <small class="text-muted">Последняя проверка: {{ last_checked|date:"H:i" }}</small>
+                                {% load tz %}
+                                <small class="text-muted">Последняя проверка: {% localtime on %}{{ last_checked }}{% endlocaltime %}</small>
                         </div>
-                        <span class="badge {{ status.0 }}">{{ status.1 }}</span>
+                        <span class="badge {{ badge_class }}">{{ label }}</span>
                     </div>
                 </div>
             {% endfor %}
@@ -70,7 +71,7 @@
     </div>
 </div>
 
-<!-- Скрипт для отрисовки графика -->
+<!-- График с Chart.js -->
 <script>
     const ctx = document.getElementById('energyChart').getContext('2d');
     const labelsMap = {
@@ -112,10 +113,32 @@
         }
     });
 
-    // Обновление данных каждые 5 минут
+    // Обновление текущих данных раз в 5 минут
     setInterval(() => {
         location.reload();
     }, 5 * 60 * 1000);
+</script>
+
+<!-- Обновление состояния оборудования без перезагрузки страницы -->
+<script>
+    function fetchStatusAndUpdateTime() {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const equipmentList = doc.querySelector('#equipment-list');
+                const target = document.getElementById('equipment-list');
+                if (equipmentList && target) {
+                    target.innerHTML = equipmentList.innerHTML;
+                }
+            });
+    }
+
+    // Выполняем обновление каждые 5 минут
+    setInterval(fetchStatusAndUpdateTime, 5 * 60 * 1000);
+    // Вызываем сразу при загрузке, чтобы быть уверенным в актуальности
+    window.addEventListener('load', fetchStatusAndUpdateTime);
 </script>
 
 {% endblock %}

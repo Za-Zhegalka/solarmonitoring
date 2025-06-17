@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
 
+STATUS_CHOICES = (
+    ('normal', 'Норма'),
+    ('attention', 'Требует внимания'),
+)
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -106,6 +111,19 @@ class Station(models.Model):
     # 1. Общие данные о системе
     name = models.CharField("Название системы", max_length=255)
     last_checked = models.DateTimeField("Время последней проверки", auto_now=True)
+    # Указываем max_length для CharField
+    status = models.CharField(
+        "Состояние",
+        max_length=20,  # <-- Вот это добавляем
+        choices=STATUS_CHOICES,
+        default='normal'
+    )
+
+    force_attention_until = models.DateTimeField(
+        "Принудительный статус до",
+        null=True,
+        blank=True
+    )
     location = models.TextField("Местоположение")
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)

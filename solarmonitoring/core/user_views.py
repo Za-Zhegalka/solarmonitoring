@@ -48,16 +48,16 @@ def monitoring_view(request):
     selected_period = request.GET.get('period', 'week')
     user_id = request.user.id if request.user.is_authenticated else 'anonymous'
 
-    # Генерируем уникальный ключ для кэша на основе пользователя и периода
     cache_key = f'solar_monitoring_data_{user_id}'
     cached_data = cache.get(cache_key)
 
     if not cached_data:
         cached_data = {}
 
-    # Проверяем, есть ли данные для выбранного периода
     if selected_period not in cached_data:
-        # Генерируем новые данные только для текущего периода
+        # Генерация данных для графика...
+        # Здесь можно использовать предыдущий код генерации энергии
+
         base_value = {
             'day': 1,
             'week': 15,
@@ -71,24 +71,29 @@ def monitoring_view(request):
         elif selected_period == 'month':
             energy_data = [round(random.uniform(base_value * 0.4, base_value * 1.8), 2) for _ in range(30)]
 
-        # Генерация текущих показателей (один раз)
         current_power = round(random.uniform(2.5, 4.0), 1)
         today_energy = round(random.uniform(15, 25), 1)
         comparison = round(random.uniform(-20, 20), 1)
 
-        # Сохраняем всё в кэш
         cached_data[selected_period] = {
             'energy_data': energy_data,
             'current_power': current_power,
             'today_energy': today_energy,
             'comparison': comparison,
         }
-        cache.set(cache_key, cached_data, timeout=60*60*24)  # Храним 24 часа
+        cache.set(cache_key, cached_data, timeout=60*60*24)
 
-    # Получаем данные из кэша
     data_for_period = cached_data[selected_period]
 
-    # Получаем статусы оборудования (можно оставить рандомными, но тоже можно кэшировать отдельно)
+    # Обновляем статусы раз в 5 минут
+    last_update_key = f'status_last_updated_{user_id}'
+    last_updated = cache.get(last_update_key)
+
+    now = timezone.now()
+    if not last_updated or (now - last_updated).seconds > 300:  # 5 минут
+        update_equipment_status()
+        cache.set(last_update_key, now, timeout=60*60*24)
+
     stations = get_equipment_status()
 
     context = {
@@ -262,31 +267,43 @@ def generate_energy_data(period):
         return [round(random.uniform(base_value * 0.4, base_value * 1.8), 2) for _ in range(30)]
 
 
-def get_equipment_status():
-    statuses = [
-        ('bg-success', 'Норма'),
-        ('bg-warning text-dark', 'Требует внимания')
-    ]
+def update_equipment_status():
+    now = timezone.now()
     stations = Station.objects.all()
-    return [(station.name, station.last_checked, random.choice(statuses)) for station in stations]
 
+    for station in stations:
+        if station.force_attention_until and station.force_attention_until > now:
+            # Статус не меняется, если еще действует принудительное состояние
+            continue
 
-def monitoring_view(request):
-    selected_period = request.GET.get('period', 'week')
-    energy_data = generate_energy_data(selected_period)
+        # 10% шанс перейти в "Требует внимания"
+        if random.random() < 0.1:  # 10%
+            station.status = 'attention'
+            # Устанавливаем срок действия статуса на 1 час
+            station.force_attention_until = now + datetime.timedelta(minutes=60)
+        else:
+            if not station.force_attention_until or station.force_attention_until <= now:
+                # Только если не зафиксировано принудительное состояние
+                station.status = 'normal'
 
-    current_power = round(random.uniform(2.5, 4.0), 1)
-    today_energy = round(random.uniform(15, 25), 1)
-    comparison = round(random.uniform(-20, 20), 1)
+        station.save()
 
-    stations = get_equipment_status()
+def get_equipment_status():
+    stations = Station.objects.all()
+    result = []
 
-    context = {
-        'energy_data': energy_data,
-        'selected_period': selected_period,
-        'current_power': current_power,
-        'today_energy': today_energy,
-        'comparison': comparison,
-        'stations': stations,
-    }
-    return render(request, 'core/user/dashboard/monitoring.html', context)
+    for station in stations:
+        if station.status == 'normal':
+            badge_class, label = 'bg-success', 'Норма'
+        else:
+            badge_class, label = 'bg-warning text-dark', 'Требует внимания'
+
+        result.append((
+            station.name,
+            station.last_checked.strftime('%d.%m %H:%M'),
+            badge_class,
+            label
+        ))
+
+    return result
+
