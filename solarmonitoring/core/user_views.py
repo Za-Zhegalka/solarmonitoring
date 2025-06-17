@@ -263,8 +263,12 @@ def generate_energy_data(period):
 
 
 def get_equipment_status():
-    statuses = [('bg-success', 'Норма'), ('bg-warning text-dark', 'Требует внимания')]
-    return [(station.name, random.choice(statuses)) for station in SolarStation.objects.all()]
+    statuses = [
+        ('bg-success', 'Норма'),
+        ('bg-warning text-dark', 'Требует внимания')
+    ]
+    stations = Station.objects.all()
+    return [(station.name, station.last_checked, random.choice(statuses)) for station in stations]
 
 
 def monitoring_view(request):

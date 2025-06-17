@@ -43,7 +43,6 @@ class SolarStation(models.Model):
     objects = None
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='stations')
     name = models.CharField(max_length=100)
-    last_checked = models.DateTimeField("Последняя проверка", auto_now=True)
     location = models.CharField(max_length=100)
     capacity = models.FloatField(help_text="Capacity in kW")
     installation_date = models.DateField()
@@ -106,6 +105,7 @@ from django.db import models
 class Station(models.Model):
     # 1. Общие данные о системе
     name = models.CharField("Название системы", max_length=255)
+    last_checked = models.DateTimeField("Время последней проверки", auto_now=True)
     location = models.TextField("Местоположение")
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)

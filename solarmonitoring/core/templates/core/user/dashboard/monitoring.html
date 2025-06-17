@@ -55,12 +55,12 @@
     </div>
     <div class="card-body">
         <div class="list-group">
-            {% for name, status in stations %}
+            {% for name, last_checked, status in stations %}
                 <div class="list-group-item">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="mb-1">{{ name }}</h6>
-                            <small class="text-muted">Последняя проверка: сегодня {{ now|date:"H:i" }}</small>
+                            <small class="text-muted">Последняя проверка: {{ last_checked|date:"H:i" }}</small>
                         </div>
                         <span class="badge {{ status.0 }}">{{ status.1 }}</span>
                     </div>
