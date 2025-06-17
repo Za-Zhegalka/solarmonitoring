@@ -135,6 +135,13 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'solar_monitoring_cache',
+    }
+}
+
 # Убедитесь, что есть эти настройки
 SESSION_COOKIE_AGE = 1209600  # 2 недели (в секундах)
 SESSION_SAVE_EVERY_REQUEST = True

@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import SolarStation, EnergyData
 from django.utils import timezone
-from datetime import timedelta
 from .serializers import StationSerializer
 from django.http import JsonResponse
 from django.views import View
 from .models import Station
+from django.core.cache import cache
 
 # Список регионов России (упрощённый)
 RUSSIAN_REGIONS = [
@@ -44,22 +44,63 @@ def station_management(request):
 
 
 @login_required
-def monitoring(request):
-    """Мониторинг данных"""
-    if request.user.is_operator:
-        return redirect('admin_dashboard')
+def monitoring_view(request):
+    selected_period = request.GET.get('period', 'week')
+    user_id = request.user.id if request.user.is_authenticated else 'anonymous'
 
-    # Пример данных для графика (последние 7 дней)
-    end_date = timezone.now()
-    start_date = end_date - timedelta(days=7)
+    # Генерируем уникальный ключ для кэша на основе пользователя и периода
+    cache_key = f'solar_monitoring_data_{user_id}'
+    cached_data = cache.get(cache_key)
 
-    energy_data = EnergyData.objects.filter(
-        station__owner=request.user,
-        timestamp__range=(start_date, end_date)
-    ).order_by('timestamp')
+    if not cached_data:
+        cached_data = {}
 
-    return render(request, 'core/user/dashboard/monitoring.html',
-                  {'energy_data': energy_data})
+    # Проверяем, есть ли данные для выбранного периода
+    if selected_period not in cached_data:
+        # Генерируем новые данные только для текущего периода
+        base_value = {
+            'day': 1,
+            'week': 15,
+            'month': 300
+        }.get(selected_period, 15)
+
+        if selected_period == 'day':
+            energy_data = [round(random.uniform(base_value * 0.6, base_value * 1.4), 2) for _ in range(24)]
+        elif selected_period == 'week':
+            energy_data = [round(random.uniform(base_value * 0.5, base_value * 1.5), 2) for _ in range(7)]
+        elif selected_period == 'month':
+            energy_data = [round(random.uniform(base_value * 0.4, base_value * 1.8), 2) for _ in range(30)]
+
+        # Генерация текущих показателей (один раз)
+        current_power = round(random.uniform(2.5, 4.0), 1)
+        today_energy = round(random.uniform(15, 25), 1)
+        comparison = round(random.uniform(-20, 20), 1)
+
+        # Сохраняем всё в кэш
+        cached_data[selected_period] = {
+            'energy_data': energy_data,
+            'current_power': current_power,
+            'today_energy': today_energy,
+            'comparison': comparison,
+        }
+        cache.set(cache_key, cached_data, timeout=60*60*24)  # Храним 24 часа
+
+    # Получаем данные из кэша
+    data_for_period = cached_data[selected_period]
+
+    # Получаем статусы оборудования (можно оставить рандомными, но тоже можно кэшировать отдельно)
+    stations = get_equipment_status()
+
+    context = {
+        'energy_data': data_for_period['energy_data'],
+        'selected_period': selected_period,
+        'current_power': data_for_period['current_power'],
+        'today_energy': data_for_period['today_energy'],
+        'comparison': data_for_period['comparison'],
+        'stations': stations,
+    }
+
+    return render(request, 'core/user/dashboard/monitoring.html', context)
 
 
 @login_required
@@ -200,3 +241,48 @@ class EditStationView(View):
             return JsonResponse({'status': 'success'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+import random
+from datetime import datetime, timedelta
+
+def generate_energy_data(period):
+    """Генерирует фейковые данные выработки энергии."""
+    base_value = {
+        'day': 1,
+        'week': 15,
+        'month': 300
+    }.get(period, 15)
+
+    if period == 'day':
+        return [round(random.uniform(base_value * 0.6, base_value * 1.4), 2) for _ in range(24)]
+    elif period == 'week':
+        return [round(random.uniform(base_value * 0.5, base_value * 1.5), 2) for _ in range(7)]
+    elif period == 'month':
+        return [round(random.uniform(base_value * 0.4, base_value * 1.8), 2) for _ in range(30)]
+
+
+def get_equipment_status():
+    statuses = [('bg-success', 'Норма'), ('bg-warning text-dark', 'Требует внимания')]
+    return [(station.name, random.choice(statuses)) for station in SolarStation.objects.all()]
+
+
+def monitoring_view(request):
+    selected_period = request.GET.get('period', 'week')
+    energy_data = generate_energy_data(selected_period)
+
+    current_power = round(random.uniform(2.5, 4.0), 1)
+    today_energy = round(random.uniform(15, 25), 1)
+    comparison = round(random.uniform(-20, 20), 1)
+
+    stations = get_equipment_status()
+
+    context = {
+        'energy_data': energy_data,
+        'selected_period': selected_period,
+        'current_power': current_power,
+        'today_energy': today_energy,
+        'comparison': comparison,
+        'stations': stations,
+    }
+    return render(request, 'core/user/dashboard/monitoring.html', context)
