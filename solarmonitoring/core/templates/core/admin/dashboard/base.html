@@ -1,29 +1,99 @@
 {% extends "core/base.html" %}
+{% load static %}
 
-{% block sidebar %}
-<h5>Админ-панель</h5>
-<ul class="nav flex-column">
-    <li class="nav-item">
-        <a class="nav-link active" href="{% url 'admin_dashboard' %}">Главная</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'admin_user_list' %}">Пользователи</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'admin_support' %}">Поддержка</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'admin_analytics' %}">Аналитика</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'admin_moderation' %}">Модерация</a>
-    </li>
-</ul>
-{% endblock %}
+{% block title %}Административная панель - SolarMonitoring{% endblock %}
 
 {% block content %}
-<h2>Административная панель</h2>
-<div class="alert alert-info">
-    Добро пожаловать в панель управления. Используйте меню слева для навигации.
+<div class="container-fluid dashboard-main">
+  <div class="row">
+    <div class="col-md-12">
+      <h1 class="dashboard-title">🌞 Добро пожаловать в административную панель SolarMonitoring</h1>
+      <p class="dashboard-subtitle">Система мониторинга солнечной энергии и производительности солнечных панелей.</p>
+    </div>
+  </div>
+
+  <div class="row stats-cards">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-header">Текущее состояние</div>
+        <div class="card-body">
+          <h5 class="card-title">☀️ Активно</h5>
+          <p class="card-text">Все датчики работают нормально.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Производство энергии</div>
+        <div class="card-body">
+          <h5 class="card-title">⚡ 3.2 кВт/ч</h5>
+          <p class="card-text">Сегодняшняя выработка энергии.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-warning mb-3">
+        <div class="card-header">Солнечное излучение</div>
+        <div class="card-body">
+          <h5 class="card-title">🌤️ 780 Вт/м²</h5>
+          <p class="card-text">Уровень солнечного света в реальном времени.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          📋 Последние события
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">✔️ Система успешно перезапущена — 10 минут назад</li>
+          <li class="list-group-item">⚡ Высокая активность солнечных панелей — 30 минут назад</li>
+          <li class="list-group-item">📶 Подключение датчика — 1 час назад</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header">
+          ℹ️ Начало работы
+        </div>
+        <div class="card-body">
+          <h5 class="card-title">Как использовать систему?</h5>
+          <ul>
+            <li>Проверяйте показания датчиков ежедневно.</li>
+            <li>Настраивайте уведомления о сбоях.</li>
+            <li>Используйте аналитику для оптимизации выработки энергии.</li>
+          </ul>
+          <a href="#" class="btn btn-outline-primary mt-3">Подробнее</a>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+.dashboard-main {
+  padding-top: 2rem;
+}
+.dashboard-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+.dashboard-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+}
+.stats-cards .card {
+  transition: transform 0.2s ease-in-out;
+}
+.stats-cards .card:hover {
+  transform: scale(1.03);
+}
+</style>
 {% endblock %}
