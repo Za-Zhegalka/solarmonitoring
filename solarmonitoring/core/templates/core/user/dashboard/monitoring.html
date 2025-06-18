@@ -75,9 +75,9 @@
 <script>
     const ctx = document.getElementById('energyChart').getContext('2d');
     const labelsMap = {
-        day: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-        week: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-        month: Array.from({length: 30}, (_, i) => `${i+1}`)
+        day: {{ data.day.labels|safe }},
+        week: {{ data.week.labels|safe }},
+        month: {{ data.month.labels|safe }}
     };
 
     new Chart(ctx, {
@@ -112,6 +112,7 @@
             }
         }
     });
+
 
     // Обновление текущих данных раз в 5 минут
     setInterval(() => {

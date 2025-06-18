@@ -44,47 +44,58 @@ def station_management(request):
 
 
 def generate_all_data():
-    """Генерирует данные для всех периодов сразу"""
     data = {}
 
-    # Генерация базового значения
-    yesterday_energy = round(random.uniform(15, 25), 1)  # Вчерашняя выработка
-    base_daily_energy = round(random.uniform(yesterday_energy * 0.8, yesterday_energy * 1.3), 1)  # Сегодня
-    comparison = round((base_daily_energy - yesterday_energy) / yesterday_energy * 100, 1)
+    now = timezone.now()
+    today = now.date()
 
+    # Генерация базового значения
+    yesterday_energy = round(random.uniform(15, 25), 1)
+    base_daily_energy = round(random.uniform(yesterday_energy * 0.8, yesterday_energy * 1.3), 1)
+    comparison = round((base_daily_energy - yesterday_energy) / yesterday_energy * 100, 1)
     current_power = round(random.uniform(2.5, 4.0), 1)
 
-    # Генерация данных для дня (24 часа)
-    daily_data = [round(random.uniform(current_power * 0.6, current_power * 1.4), 2) for _ in range(24)]
+    # График за день — только до текущего времени
+    current_hour = now.hour + 1  # Включая текущий час
+    daily_data = [round(random.uniform(current_power * 0.6, current_power * 1.4), 2) for _ in range(current_hour)]
+    daily_labels = [f"{hour}:00" for hour in range(current_hour)]
 
-    # Генерация недельных данных с учётом сегодняшнего значения
-    weekly_data = [round(random.uniform(base_daily_energy * 0.7, base_daily_energy * 1.3), 2) for _ in range(7)]
-    weekly_data[-1] = base_daily_energy  # Последнее значение — сегодня
+    # График за неделю — с понедельника или с недели назад, заканчивая сегодня
+    week_start = today - timedelta(days=today.weekday())
+    days_week = [(week_start + timedelta(days=i)) for i in range((today - week_start).days + 1)]
+    weekly_data = [round(random.uniform(base_daily_energy * 0.7, base_daily_energy * 1.3), 2) for _ in range(len(days_week))]
+    weekly_data[-1] = base_daily_energy  # Сегодняшнее значение
+    weekly_labels = [day.strftime("%a") for day in days_week]
 
-    # Генерация месячных данных
-    monthly_data = [round(random.uniform(base_daily_energy * 0.5, base_daily_energy * 1.5), 2) for _ in range(30)]
+    # График за месяц — с 1 числа до сегодня
+    first_day_of_month = today.replace(day=1)
+    num_days_month = (today - first_day_of_month).days + 1
+    days_month = [(first_day_of_month + timedelta(days=i)) for i in range(num_days_month)]
+    monthly_data = [round(random.uniform(base_daily_energy * 0.5, base_daily_energy * 1.5), 2) for _ in range(num_days_month)]
+    monthly_data[-1] = base_daily_energy  # Сегодняшнее значение
+    monthly_labels = [day.day for day in days_month]
 
     data['day'] = {
         'energy_data': daily_data,
+        'labels': daily_labels,
         'current_power': current_power,
         'today_energy': base_daily_energy,
-        'yesterday_energy': yesterday_energy,
         'comparison': comparison,
     }
 
     data['week'] = {
         'energy_data': weekly_data,
+        'labels': weekly_labels,
         'current_power': current_power,
         'today_energy': base_daily_energy,
-        'yesterday_energy': yesterday_energy,
         'comparison': comparison,
     }
 
     data['month'] = {
         'energy_data': monthly_data,
+        'labels': monthly_labels,
         'current_power': current_power,
         'today_energy': base_daily_energy,
-        'yesterday_energy': yesterday_energy,
         'comparison': comparison,
     }
 
@@ -100,16 +111,15 @@ def monitoring_view(request):
 
     if not cached_data:
         cached_data = generate_all_data()
-        cache.set(cache_key, cached_data, timeout=60 * 60 * 24)  # Храним 24 часа
+        cache.set(cache_key, cached_data, timeout=60 * 60 * 24)
 
     data_for_period = cached_data[selected_period]
 
-    # Обновление статусов оборудования каждые 5 минут
     last_update_key = f'status_last_updated_{user_id}'
     last_updated = cache.get(last_update_key)
 
     now = timezone.now()
-    if not last_updated or (now - last_updated).seconds > 300:  # 5 минут
+    if not last_updated or (now - last_updated).seconds > 300:
         update_equipment_status()
         cache.set(last_update_key, now, timeout=60 * 60 * 24)
 
@@ -122,6 +132,7 @@ def monitoring_view(request):
         'today_energy': data_for_period['today_energy'],
         'comparison': data_for_period['comparison'],
         'stations': stations,
+        'data': cached_data,  # Передаем все данные для использования в шаблоне
     }
 
     return render(request, 'core/user/dashboard/monitoring.html', context)
