@@ -43,7 +43,54 @@ def station_management(request):
                   {'stations': stations})
 
 
-@login_required
+def generate_all_data():
+    """Генерирует данные для всех периодов сразу"""
+    data = {}
+
+    # Генерация базового значения
+    yesterday_energy = round(random.uniform(15, 25), 1)  # Вчерашняя выработка
+    base_daily_energy = round(random.uniform(yesterday_energy * 0.8, yesterday_energy * 1.3), 1)  # Сегодня
+    comparison = round((base_daily_energy - yesterday_energy) / yesterday_energy * 100, 1)
+
+    current_power = round(random.uniform(2.5, 4.0), 1)
+
+    # Генерация данных для дня (24 часа)
+    daily_data = [round(random.uniform(current_power * 0.6, current_power * 1.4), 2) for _ in range(24)]
+
+    # Генерация недельных данных с учётом сегодняшнего значения
+    weekly_data = [round(random.uniform(base_daily_energy * 0.7, base_daily_energy * 1.3), 2) for _ in range(7)]
+    weekly_data[-1] = base_daily_energy  # Последнее значение — сегодня
+
+    # Генерация месячных данных
+    monthly_data = [round(random.uniform(base_daily_energy * 0.5, base_daily_energy * 1.5), 2) for _ in range(30)]
+
+    data['day'] = {
+        'energy_data': daily_data,
+        'current_power': current_power,
+        'today_energy': base_daily_energy,
+        'yesterday_energy': yesterday_energy,
+        'comparison': comparison,
+    }
+
+    data['week'] = {
+        'energy_data': weekly_data,
+        'current_power': current_power,
+        'today_energy': base_daily_energy,
+        'yesterday_energy': yesterday_energy,
+        'comparison': comparison,
+    }
+
+    data['month'] = {
+        'energy_data': monthly_data,
+        'current_power': current_power,
+        'today_energy': base_daily_energy,
+        'yesterday_energy': yesterday_energy,
+        'comparison': comparison,
+    }
+
+    return data
+
+
 def monitoring_view(request):
     selected_period = request.GET.get('period', 'week')
     user_id = request.user.id if request.user.is_authenticated else 'anonymous'
@@ -52,47 +99,19 @@ def monitoring_view(request):
     cached_data = cache.get(cache_key)
 
     if not cached_data:
-        cached_data = {}
-
-    if selected_period not in cached_data:
-        # Генерация данных для графика...
-        # Здесь можно использовать предыдущий код генерации энергии
-
-        base_value = {
-            'day': 1,
-            'week': 15,
-            'month': 300
-        }.get(selected_period, 15)
-
-        if selected_period == 'day':
-            energy_data = [round(random.uniform(base_value * 0.6, base_value * 1.4), 2) for _ in range(24)]
-        elif selected_period == 'week':
-            energy_data = [round(random.uniform(base_value * 0.5, base_value * 1.5), 2) for _ in range(7)]
-        elif selected_period == 'month':
-            energy_data = [round(random.uniform(base_value * 0.4, base_value * 1.8), 2) for _ in range(30)]
-
-        current_power = round(random.uniform(2.5, 4.0), 1)
-        today_energy = round(random.uniform(15, 25), 1)
-        comparison = round(random.uniform(-20, 20), 1)
-
-        cached_data[selected_period] = {
-            'energy_data': energy_data,
-            'current_power': current_power,
-            'today_energy': today_energy,
-            'comparison': comparison,
-        }
-        cache.set(cache_key, cached_data, timeout=60*60*24)
+        cached_data = generate_all_data()
+        cache.set(cache_key, cached_data, timeout=60 * 60 * 24)  # Храним 24 часа
 
     data_for_period = cached_data[selected_period]
 
-    # Обновляем статусы раз в 5 минут
+    # Обновление статусов оборудования каждые 5 минут
     last_update_key = f'status_last_updated_{user_id}'
     last_updated = cache.get(last_update_key)
 
     now = timezone.now()
     if not last_updated or (now - last_updated).seconds > 300:  # 5 минут
         update_equipment_status()
-        cache.set(last_update_key, now, timeout=60*60*24)
+        cache.set(last_update_key, now, timeout=60 * 60 * 24)
 
     stations = get_equipment_status()
 
