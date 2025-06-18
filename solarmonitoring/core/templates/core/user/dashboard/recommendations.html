@@ -18,7 +18,7 @@
                 <div class="flex-grow-1">
                     <h5>Основная рекомендация</h5>
                     <p>Увеличьте угол наклона панелей до 35° для повышения эффективности на 15%</p>
-                    <small class="text-muted">Прогнозируемый эффект: +120 кВт·ч в день</small>
+                    <small class="text-muted">Прогнозируемый эффект: +6 кВт·ч в день</small>
                 </div>
                 <button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#recommendationModal">Подробнее</button>
             </div>
@@ -85,18 +85,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>11.05.2025</td>
-                            <td>Проверить соединения</td>
-                            <td><span class="badge bg-secondary">Техническое</span></td>
-                            <td><span class="badge bg-success">Выполнено</span></td>
-                        </tr>
-                        <tr>
-                            <td>11.05.2025</td>
-                            <td>Обновить прошивку</td>
-                            <td><span class="badge bg-primary">Прошивка</span></td>
-                            <td><span class="badge bg-warning text-dark">В процессе</span></td>
-                        </tr>
+                        {% for rec in recommendations %}
+                            <tr>
+                                <td>{{ rec.date|date:"d.m.Y" }}</td>
+                                <td>{{ rec.text }}</td>
+                                <td>
+                                    {% if rec.recommendation_type == 'maintenance' %}
+                                        Техническое обслуживание
+                                    {% elif rec.recommendation_type == 'upgrade' %}
+                                        Обновление оборудования
+                                    {% elif rec.recommendation_type == 'inspection' %}
+                                        Плановый осмотр
+                                    {% elif rec.recommendation_type == 'cleaning' %}
+                                        Очистка панелей
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if rec.status == 'pending' %}
+                                        <span class="badge bg-secondary">Ожидает</span>
+                                    {% elif rec.status == 'in_progress' %}
+                                        <span class="badge bg-primary">В процессе</span>
+                                    {% elif rec.status == 'completed' %}
+                                        <span class="badge bg-success">Выполнено</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center">Нет записей</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -114,7 +132,7 @@
             </div>
             <div class="modal-body">
                 <p>Изменение угла наклона солнечных панелей до 35° позволит максимально эффективно использовать уровень солнечной инсоляции в вашем регионе.</p>
-                <p>Эффективность повысится на 15%, что эквивалентно увеличению суточной выработки энергии на 120 кВт·ч.</p>
+                <p>Эффективность повысится на 15%, что эквивалентно увеличению суточной выработки энергии на 6 кВт·ч.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Закрыть</button>

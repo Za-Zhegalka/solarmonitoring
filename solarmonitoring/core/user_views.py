@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.views import View
 from .models import Station
 from django.core.cache import cache
+from .models import Recommendation
 
 # Список регионов России (упрощённый)
 RUSSIAN_REGIONS = [
@@ -337,3 +338,8 @@ def get_equipment_status():
 
     return result
 
+def recommendations_view(request):
+    recommendations = Recommendation.objects.all().order_by('-date')
+    return render(request, 'core/user/dashboard/station_management.html', {
+        'recommendations': recommendations
+    })

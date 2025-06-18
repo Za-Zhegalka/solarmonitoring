@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 
 STATUS_CHOICES = (
@@ -180,3 +181,25 @@ class Station(models.Model):
     class Meta:
         verbose_name = "Станция"
         verbose_name_plural = "Станции"
+
+class Recommendation(models.Model):
+    RECOMMENDATION_TYPE_CHOICES = (
+        ('maintenance', 'Техническое обслуживание'),
+        ('upgrade', 'Обновление оборудования'),
+        ('inspection', 'Плановый осмотр'),
+        ('cleaning', 'Очистка панелей'),
+    )
+
+    STATUS_CHOICES = (
+        ('pending', 'Ожидает'),
+        ('in_progress', 'В процессе'),
+        ('completed', 'Выполнено'),
+    )
+
+    date = models.DateField("Дата", default=timezone.now)
+    text = models.TextField("Рекомендация")
+    recommendation_type = models.CharField("Тип", max_length=20, choices=RECOMMENDATION_TYPE_CHOICES)
+    status = models.CharField("Статус", max_length=20, choices=STATUS_CHOICES, default='pending')
+
+    def __str__(self):
+        return f"{self.get_recommendation_type_display()} — {self.date}"
