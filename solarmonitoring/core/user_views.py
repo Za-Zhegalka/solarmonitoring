@@ -339,7 +339,5 @@ def get_equipment_status():
     return result
 
 def recommendations_view(request):
-    recommendations = Recommendation.objects.all().order_by('-date')
-    return render(request, 'core/user/dashboard/station_management.html', {
-        'recommendations': recommendations
-    })
+    recommendations = RecommendationModel.objects.all()  # или фильтрованный QuerySet
+    return render(request, 'core/user/dashboard/recommendations.html', {'recommendations': recommendations})
